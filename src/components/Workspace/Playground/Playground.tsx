@@ -112,7 +112,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
 	};
 
 	return (
-		<div className='flex flex-col bg-dark-layer-1 relative overflow-x-hidden'>
+		<div className='flex flex-col h-full bg-dark-layer-1 relative overflow-x-hidden'>
 			<PreferenceNav settings={settings} setSettings={setSettings} />
 
 			<Split className='h-[calc(100vh-94px)]' direction='vertical' sizes={[60, 40]} minSize={60}>
@@ -147,21 +147,21 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
 										${activeTestCaseId === index ? "text-white" : "text-gray-500"}
 									`}
 									>
-										Case {index + 1}
+										Case - {index + 1}
 									</div>
 								</div>
 							</div>
 						))}
 					</div>
 
-					<div className='font-semibold my-4'>
+					<div className='font-semibold overflow-scroll'>
 						<p className='text-sm font-medium mt-4 text-white'>Input:</p>
 						<div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-							{problem.examples[activeTestCaseId].inputText}
+							<pre>{problem.examples[activeTestCaseId].inputText}</pre>
 						</div>
 						<p className='text-sm font-medium mt-4 text-white'>Output:</p>
 						<div className='w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2'>
-							{problem.examples[activeTestCaseId].outputText}
+							<pre>{problem.examples[activeTestCaseId].outputText}</pre>
 						</div>
 					</div>
 				</div>

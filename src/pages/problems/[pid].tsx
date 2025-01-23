@@ -1,5 +1,5 @@
 
-import Navbar from "@/components/Navbar/Navbar";
+// import Navbar from "@/components/Navbar/Navbar";
 import Workspace from "@/components/Workspace/Workspace";
 import useHasMounted from "@/hooks/useHasMounted";
 import { problems } from "@/utils/problems";
@@ -16,11 +16,10 @@ const ProblemPage: React.FC<ProblemPageProps> = ({ problem }) => {
 	if (!hasMounted) return null;
 
 	return (
-		
 			<>
 			<Workspace problem={problem} />
 			</>
-		
+
 	);
 };
 export default ProblemPage;
