@@ -1,5 +1,7 @@
 const express = require('express');
-const { question, getspecificquestion, runCode, submitCode } = require('../controller/question.js');
+const {  runCode } = require('../controller/runCode.js');
+const { submitCode } = require('../controller/submitCode.js');
+const { question, getspecificquestion } = require('../controller/getspecificquestion.js');
 const router = express.Router();
 
 router.get("/questions", question);
