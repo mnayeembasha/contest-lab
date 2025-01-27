@@ -6,9 +6,9 @@ var logger = require('morgan');
 var questionsRouter = require('./routes/questionsroute');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+var mongoose = require('mongoose');
 var app = express();
-
+var constestRouter = require('./routes/contestroutes');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -19,6 +19,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', questionsRouter);
+app.use('/api', constestRouter);
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
@@ -37,5 +38,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
+mongoose.connect('mongodb://localhost:27017/coding-competition')
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.log(err));
 module.exports = app;
