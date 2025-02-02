@@ -5,6 +5,8 @@ type EditorFooterProps = {
 	handleSubmit: () => void;
 };
 
+
+
 const EditorFooter: React.FC<EditorFooterProps> = ({ handleSubmit }) => {
 	return (
 		<div className='flex bg-dark-layer-1 absolute bottom-0 z-10 w-full'>

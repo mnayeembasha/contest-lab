@@ -16,7 +16,7 @@ const   AdminPage:React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleChange = (e: { target: { name: any; value: any; }; }) => {
+  const handleChange = (e: { target: { name: string; value: string; }; }) => {
     setProblem({
       ...problem,
       [e.target.name]: e.target.value,
@@ -49,7 +49,7 @@ const   AdminPage:React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-dark-layer-2 text-gray-200 p-6">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-dark-layer-2 text-gray-200 p-6">
       <h1 className="text-2xl font-medium mb-6">Admin: Add New Problem</h1>
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         {/* ID Field */}

@@ -1,69 +1,42 @@
-import Navbar from "@/components/Navbar/Navbar";
-import ProblemsTable from "@/components/ProblemsTable/ProblemsTable";
-import useHasMounted from "@/hooks/useHasMounted";
-
-import { useState } from "react";
+import Footer from "@/components/Footer/Footer";
+import Link from "next/link";
 
 export default function Home() {
-	const [loadingProblems, setLoadingProblems] = useState(true);
-	const hasMounted = useHasMounted();
-
-	if (!hasMounted) return null;
-
-	return (
-		<>
-			<main className='bg-dark-layer-2 min-h-screen'>
-				<h1
-					className='text-2xl text-center text-gray-700 dark:text-gray-400 font-medium
-					uppercase  py-5 '
-				>
-					&ldquo; QUALITY OVER QUANTITY &rdquo; 👇
-				</h1>
-				<div className='relative overflow-x-auto mx-auto px-6 pb-10'>
-					{loadingProblems && (
-						<div className='max-w-[1200px] mx-auto sm:w-7/12 w-full animate-pulse'>
-							{[...Array(10)].map((_, idx) => (
-								<LoadingSkeleton key={idx} />
-							))}
-						</div>
-					)}
-					<table className='text-sm text-left text-gray-500 dark:text-gray-400 sm:w-7/12 w-full max-w-[1200px] mx-auto'>
-						{!loadingProblems && (
-							<thead className='text-xs text-gray-700 uppercase dark:text-gray-400 border-b '>
-								<tr>
-									<th scope='col' className='px-1 py-3 w-0 font-medium'>
-										Status
-									</th>
-									<th scope='col' className='px-6 py-3 w-0 font-medium'>
-										Title
-									</th>
-									<th scope='col' className='px-6 py-3 w-0 font-medium'>
-										Difficulty
-									</th>
-
-									<th scope='col' className='px-6 py-3 w-0 font-medium'>
-										Category
-									</th>
-								</tr>
-							</thead>
-						)}
-						<ProblemsTable setLoadingProblems={setLoadingProblems} />
-					</table>
-				</div>
-			</main>
-
-		</>
-	);
+  return (
+    <div className="flex flex-col items-center min-h-[90vh]">
+      <div className="container flex-1 h-full flex items-center mx-auto px-4 relative z-10">
+        <div className="mx-auto text-center text-white">
+          <h1 className="text-4xl md:text-6xl bg-gradient-to-b from-gray-300 to-gray-500 bg-clip-text text-transparent font-bold mb-6">
+            Code Beyond Limits!
+          </h1>
+          <p
+            className="text-lg md:text-xl mb-8 animate-fade-up font-medium text-gray-400"
+            style={{ animationDelay: "0.2s" }}
+          >
+            Showcase your skills and compete with the best minds at RGUKT
+            Nuzvid&apos;s Coding Contest.
+          </p>
+          <div
+            className="space-x-4"
+          >
+            <Link
+              href="#"
+              className="inline-block px-8 py-3 bg-green-600 bg-gradient-to-b from-amber-500 to-amber-800  hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200"
+            >
+              Register Now
+            </Link>
+            <Link
+              href="/problems"
+              className="inline-block px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors duration-200"
+            >
+              Practice Problems
+            </Link>
+          </div>
+        </div>
+      </div>
+	  <div>
+	  </div>
+		<Footer/>
+    </div>
+  );
 }
-
-const LoadingSkeleton = () => {
-	return (
-		<div className='flex items-center space-x-12 mt-4 px-6'>
-			<div className='w-6 h-6 shrink-0 rounded-full bg-dark-layer-1'></div>
-			<div className='h-4 sm:w-52  w-32  rounded-full bg-dark-layer-1'></div>
-			<div className='h-4 sm:w-52  w-32 rounded-full bg-dark-layer-1'></div>
-			<div className='h-4 sm:w-52 w-32 rounded-full bg-dark-layer-1'></div>
-			<span className='sr-only'>Loading...</span>
-		</div>
-	);
-};

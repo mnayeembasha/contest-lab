@@ -27,15 +27,15 @@ export interface ISettings {
 }
 
 const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved }) => {
+
 	const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
 	let [userCode, setUserCode] = useState<string>(problem.starterCode);
-
 	const [fontSize, setFontSize] = useLocalStorage("lcc-fontSize", "16px");
 
 	const [settings, setSettings] = useState<ISettings>({
 		fontSize: fontSize,
-		settingsModalIsOpen: false,
-		dropdownIsOpen: false,
+		settingsModalIsOpen: true,
+		dropdownIsOpen: true,
 	});
 
 	const [user] = useAuthState(auth);
@@ -77,7 +77,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem, setSuccess, setSolved 
 					setSolved(true);
 				}
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.log(error.message);
 			if (
 				error.message.startsWith("AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:")
