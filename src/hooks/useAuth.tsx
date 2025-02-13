@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import axios from "axios";
+import { customizedToast } from "@/utils/Toast/Toast";
 
 const BACKEND_URL = "http://localhost:3000";
 
@@ -14,7 +15,6 @@ type User = {
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
-  isLoggedIn: boolean;
   logout: () => void;
   fetchUser: () => void;
   loading:boolean;
@@ -23,10 +23,10 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading,setLoading] = useState<boolean>(false);
-  const isLoggedIn = user !== null;
 
   const logout = async () => {
     try {
@@ -34,13 +34,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (response.data) {
         toast.success("Logged Out Successfully!", {
-          position: "top-right",
+          position: "top-center",
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: false,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
+          theme:"dark",
           transition: Bounce,
         });
         setUser(null);
@@ -49,15 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }, 500);
 
       } else {
-        toast.error("Logout failed", {
-          position: "top-right",
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          transition: Bounce,
-        });
+        customizedToast({type:"error",message:`Logout failed`})
         setTimeout(() => {
           window.location.replace("/"); // Use replace to prevent back navigation
         }, 3000);
@@ -68,15 +61,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (axios.isAxiosError(error)) {
         errorMessage = error.response?.data?.message || "";
       }
-      toast.error(`Logout failed - ${errorMessage || "An unexpected error occurred"}`, {
-        position: "top-right",
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        transition: Bounce,
-      });
+      customizedToast({type:"error",message:`Logout failed - ${errorMessage || "An unexpected error occurred"}`})
     }
   };
 
@@ -86,7 +71,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await axios.get(`${BACKEND_URL}/auth/me`, { withCredentials: true });
       if (response.data) {
         setUser(response.data.user);
-        setLoading(false);
         console.log("user=",response.data.user);
       }
     } catch (error) {
@@ -98,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
   return (
-    <AuthContext.Provider value={{ user, setUser, isLoggedIn, fetchUser, logout,loading,setLoading }}>
+    <AuthContext.Provider value={{ user, setUser, fetchUser, logout,loading,setLoading }}>
       {children}
     </AuthContext.Provider>
   );

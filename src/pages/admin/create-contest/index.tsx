@@ -50,9 +50,9 @@ export default function CreateContest() {
   };
 
   return (
-    <Card className="bg-dark-layer-2 text-white mt-20 max-w-md mx-auto p-6 shadow-md">
+    <Card className="bg-dark-layer-2 text-white mt-20 w-[50%] mx-auto p-4 shadow-md">
       <CardHeader>
-        <CardTitle>Create a Contest</CardTitle>
+        <CardTitle className="text-center text-2xl font-bold">Create a Contest</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -88,7 +88,7 @@ export default function CreateContest() {
             {errors.questions && <p className="text-red-500 text-sm">{errors.questions.message}</p>}
           </div>
 
-          <Button type="submit" disabled={loading} className="w-full bg-dark-layer-1">
+          <Button type="submit" disabled={loading} className="w-full bg-dark-layer-1 hover:bg-slate-600">
             {loading ? "Creating..." : "Create Contest"}
           </Button>
         </form>

@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer/Footer";
 import Link from "next/link";
+import {Button} from "@/components/ui/button"
 
 export default function Home() {
   return (
@@ -21,15 +22,15 @@ export default function Home() {
           >
             <Link
               href="#"
-              className="inline-block px-8 py-3 bg-green-600 bg-gradient-to-b from-amber-500 to-amber-800  hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200"
+              className=""
             >
-              Register Now
+              <Button className="px-6 py-6 bg-green-600 bg-gradient-to-b from-amber-500 to-amber-800  hover:bg-green-700 text-white font-semibold rounded-lg transition-colors duration-200">Register Now</Button>
             </Link>
             <Link
               href="/problems"
-              className="inline-block px-8 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors duration-200"
+              className=""
             >
-              Practice Problems
+             <Button className="px-6 py-6 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg transition-colors duration-200"> Practice Problems</Button>
             </Link>
           </div>
         </div>

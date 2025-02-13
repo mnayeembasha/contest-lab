@@ -1,13 +1,14 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { BsCheckCircle } from "react-icons/bs";
-import { AiFillYoutube } from "react-icons/ai";
+// import { AiFillYoutube } from "react-icons/ai";
 import { IoClose } from "react-icons/io5";
 import YouTube from "react-youtube";
 import { collection, doc, getDoc, getDocs, orderBy, query } from "firebase/firestore";
 import { auth, firestore } from "@/firebase/firebase";
 import { DBProblem } from "@/utils/types/problem";
 import { useAuthState } from "react-firebase-hooks/auth";
+import axios from "axios";
 
 type ProblemsTableProps = {
 	setLoadingProblems: React.Dispatch<React.SetStateAction<boolean>>;
@@ -107,7 +108,6 @@ function useGetProblems(setLoadingProblems: React.Dispatch<React.SetStateAction<
 
 	useEffect(() => {
 		const getProblems = async () => {
-			// fetching data logic
 			setLoadingProblems(true);
 			const q = query(collection(firestore, "problems"), orderBy("order", "asc"));
 			const querySnapshot = await getDocs(q);
@@ -117,6 +117,16 @@ function useGetProblems(setLoadingProblems: React.Dispatch<React.SetStateAction<
 			});
 			setProblems(tmp);
 			setLoadingProblems(false);
+			// try {
+			// 	const response = await axios.get("http://localhost:3000/api/questions");
+			// 	console.log(response.data.questions)
+			// 	setProblems(response.data.questions);
+			//   } catch (error) {
+			// 	console.error("Error fetching questions:", error);
+			//   }finally{
+			// 	setLoadingProblems(false);
+			//   }
+
 		};
 
 		getProblems();

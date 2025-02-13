@@ -1,21 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
+import DotSpinnerLoader from "@/components/Loader/DotSpinner";
 
 export default function Profile() {
   const router = useRouter();
   axios.defaults.baseURL = "http://localhost:3000";
 
-  const { user, fetchUser, logout } = useAuth();
-  const [loading, setLoading] = useState<boolean>(true); // Add loading state
+  const { user, fetchUser, logout ,loading} = useAuth();
+
+
 
   // Fetch user data if not present
   useEffect(() => {
     const fetchData = async () => {
       await fetchUser();
-      setLoading(false);
     };
 
     if (!user && loading) {
@@ -25,14 +26,16 @@ export default function Profile() {
 
   // Redirect to login if user is not found
   useEffect(() => {
+    console.log(user);
     if (!user && !loading) {
       router.push("/login");
     }
   }, [user, loading, router]);
 
+
   // Show loading state while user data is being fetched
   if (loading) {
-    return <div>Loading...</div>;
+    return <DotSpinnerLoader/>
   }
 
   return (

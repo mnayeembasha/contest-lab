@@ -1,27 +1,33 @@
-'use client';
+import DotSpinnerLoader from "@/components/Loader/DotSpinner";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 
 export default function Login() {
-  const { user,loading,setLoading } = useAuth();
   const router = useRouter();
+  const { user, loading, setLoading, fetchUser } = useAuth(); // Add fetchUser here
 
-  // Redirect to login if user is not found
+  // Redirect to profile if user is found
   useEffect(() => {
-    if (user) {
-      router.push("/profile");
-    }
-  }, [user, router]);
+    const checkAuth = async () => {
+      if (!user) {
+        await fetchUser();
+      }
+      if (user) {
+        router.push("/profile");
+      }
+    };
 
-  if (loading || user) {
+    checkAuth();
+  }, [user, router, fetchUser]);
+
+  if (loading) {
     return (
-      <div className="text-white text-xl flex justify-center items-center min-h-[90vh]">
-        Loading...
-      </div>
+    <DotSpinnerLoader/>
     );
   }
 
+  // Rest of the component remains the same
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
@@ -30,6 +36,7 @@ export default function Login() {
       console.error("Google sign-in error:", error);
     }
   };
+
 
 
   return (

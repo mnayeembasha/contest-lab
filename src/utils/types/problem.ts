@@ -1,32 +1,36 @@
 export type Example = {
-	id: number;
-	inputText: string;
-	outputText: string;
-	explanation?: string;
-	img?: string;
+  id: number;
+  inputText: string;
+  outputText: string;
+  explanation?: string;
 };
-
-// local problem data
-export type Problem = {
-	id: string;
-	title: string;
-	problemStatement: string;
-	examples: Example[];
-	constraints: string;
-	order: number;
-	starterCode: string;
-	handlerFunction: ((fn: any) => boolean) | string;
-	starterFunctionName: string;
+export type Testcase = {
+  id?: number;
+  input: string;
+  expected: string;
 };
+enum Difficulty {
+  easy = "easy",
+  medium = "medium",
+  hard = "hard",
+}
 
-export type DBProblem = {
-	id: string;
-	title: string;
-	category: string;
-	difficulty: string;
-	likes: number;
-	dislikes: number;
-	order: number;
-	videoId?: string;
-	link?: string;
+export type ProblemType = {
+  _id: string;
+  title: string;
+  slug: string;
+  description: string;
+  difficulty: string;
+  category: string;
+  starterCode: {
+    python: string;
+    javascript: string;
+    java: string;
+    c: string;
+    "c++": string;
+  };
+  constraints?: string[];
+  image?: string;
+  examples?: Example[];
+  testCases?: Testcase[];
 };

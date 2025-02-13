@@ -1,58 +1,49 @@
-
-// import Navbar from "@/components/Navbar/Navbar";
-import Workspace from "@/components/Workspace/Workspace";
+import { useRouter } from "next/router";
+import DotSpinner from  "../../components/Loader/DotSpinner";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import useHasMounted from "@/hooks/useHasMounted";
-import { problems } from "@/utils/problems";
-import { Problem } from "@/utils/types/problem";
-import React from "react";
+import { BACKEND_URL } from "@/config";
+import axios from "axios";
+import Workspace from "@/components/Workspace/Workspace";
+import { ProblemType } from "@/utils/types/problem";
 
-type ProblemPageProps = {
-	problem: Problem;
-};
+const ProblemPage = () =>{
+  const [problem, setProblem] = useState<ProblemType | undefined>();
+  const { loading, setLoading } = useAuth();
 
-const ProblemPage: React.FC<ProblemPageProps> = ({ problem }) => {
-	const hasMounted = useHasMounted();
+  const hasMounted = useHasMounted();
+	const router = useRouter();
+	const {pid} = router.query;
 
-	if (!hasMounted) return null;
+  useEffect(() => {
+    if(!pid)return;
 
-	return (
-			<>
-			<Workspace problem={problem} />
-			</>
+    const getQuestion = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${BACKEND_URL}/api/questions/${pid}`);
+        setProblem(res.data);
+      } catch (error) {
+        console.log("Failed to fetch questions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-	);
-};
+    getQuestion();
+  }, [pid]);
+
+  if (!hasMounted) {
+    return null;
+  }
+
+  if (!problem || loading) {
+    return <DotSpinner/>;
+  }
+
+	return <Workspace problem={problem as ProblemType}/>
+
+}
+
 export default ProblemPage;
-
-// fetch the local data
-//  SSG
-// getStaticPaths => it create the dynamic routes
-export async function getStaticPaths() {
-	const paths = Object.keys(problems).map((key) => ({
-		params: { pid: key },
-	}));
-
-	return {
-		paths,
-		fallback: false,
-	};
-}
-
-// getStaticProps => it fetch the data
-
-export async function getStaticProps({ params }: { params: { pid: string } }) {
-	const { pid } = params;
-	const problem = problems[pid];
-
-	if (!problem) {
-		return {
-			notFound: true,
-		};
-	}
-	problem.handlerFunction = problem.handlerFunction.toString();
-	return {
-		props: {
-			problem,
-		},
-	};
-}

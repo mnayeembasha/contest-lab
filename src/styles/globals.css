@@ -89,7 +89,7 @@ code {
 }
 
 .example-card pre {
-	background-color: hsla(0, 0%, 100%, 0.1);
+	background-color: #ffffff1a;
 	border-radius: 0.5rem;
 	color: rgba(239, 241, 246, 0.75);
 	font-size: 0.98rem;
