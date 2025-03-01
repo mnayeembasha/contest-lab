@@ -1,8 +1,8 @@
 import { ProblemType } from "@/utils/types/problem";
 import React from "react";
-import { AiFillLike, AiFillDislike, AiFillStar, AiOutlineLoading3Quarters } from "react-icons/ai";
-import { BsCheck2Circle } from "react-icons/bs";
-import { TiStarOutline } from "react-icons/ti";
+// import { AiFillLike, AiFillDislike, AiFillStar, AiOutlineLoading3Quarters } from "react-icons/ai";
+// import { BsCheck2Circle } from "react-icons/bs";
+// import { TiStarOutline } from "react-icons/ti";
 import RectangleSkeleton from "@/components/Skeletons/RectangleSkeleton"; // Assume these skeleton components exist
 import CircleSkeleton from "@/components/Skeletons/CircleSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,13 +27,13 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({
 
     const {loading} = useAuth();
     // Difficulty styling
-    const difficultyClass = problem?.difficulty
-      ? {
-          easy: "bg-green-500",
-          medium: "bg-yellow-500",
-          hard: "bg-red-500",
-        }[problem.difficulty]
-      : "";
+    // const difficultyClass = problem?.difficulty
+    //   ? {
+    //       easy: "bg-green-500",
+    //       medium: "bg-yellow-500",
+    //       hard: "bg-red-500",
+    //     }[problem.difficulty]
+    //   : "";
 
     // Loading Skeleton
     const renderSkeleton = () => (
@@ -52,10 +52,10 @@ const ProblemDescription: React.FC<ProblemDescriptionProps> = ({
       return (
         <div className="mt-4">
           {problem.examples.map((example, index) => (
-            <div key={index} className="mb-4">
+            <div key={index} className="mb-4 text-sm">
               <p className="font-medium text-white">Example {index + 1}: </p>
               <div className="example-card bg-dark-layer-2 rounded-md">
-                <pre className="text-white">
+                <pre className="text-gray-300">
                   <strong>Input: </strong> {example.inputText}
                   <br />
                   <strong>Output: </strong> {example.outputText}

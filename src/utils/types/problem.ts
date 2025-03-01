@@ -8,12 +8,8 @@ export type Testcase = {
   id?: number;
   input: string;
   expected: string;
+  description?:string;
 };
-enum Difficulty {
-  easy = "easy",
-  medium = "medium",
-  hard = "hard",
-}
 
 export type ProblemType = {
   _id: string;

@@ -1,8 +1,31 @@
-
-export default function Loader() {
+import './DotSpinner.css';
+interface DotSpinnerProps{
+  size?:string,
+  color?:string
+}
+export default function DotSpinner({size="40px",color="rgb(241, 204, 80)"}:DotSpinnerProps) {
   return (
     <div className="text-white text-xl flex justify-center items-center min-h-[90vh]">
-      <l-spiral size="40" speed="0.9" color="yellow"></l-spiral>
+      <div className="container" style={{
+        "--uib-color":color,
+        "--uib-size":size
+      }  as React.CSSProperties}
+      >
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+        <div className="dot"></div>
+      </div>
     </div>
   );
 }
+
+
+
+
+
+

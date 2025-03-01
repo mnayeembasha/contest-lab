@@ -2,10 +2,10 @@ import { Contest } from "../types/contest";
 import { problems } from "./problems";
 
 export const mockContest: Contest = {
-    contestId: "123",
+    contestId: "679e11660e4c800460d1351a",
     contestName: "Algo Hustle",
-    startTime: "2025-03-10T22:00:00Z",
-    duration: "3h",
+    startTime: "2025-03-01T07:02:00Z",
+    duration: "1h",
     isActive:true,
-    problems:problems   
+    problems:problems
 }

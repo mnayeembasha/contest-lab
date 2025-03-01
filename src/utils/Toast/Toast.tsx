@@ -1,7 +1,8 @@
+import { ReactNode } from "react";
 import {Bounce, toast, ToastTransition} from "react-toastify"
 
 interface ToastProps{
-  message:string;
+  message:string | ReactNode;
   type:"success"|"error";
   position?:"top-center"|"bottom-center"|"top-right"|undefined;
   hideProgressBar?:boolean;

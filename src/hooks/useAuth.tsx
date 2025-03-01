@@ -1,15 +1,15 @@
-import React, { createContext, useContext, useState } from "react";
-import { Bounce, toast } from "react-toastify";
+'use client';
+import React, { createContext,useContext,useState } from "react";
 import axios from "axios";
 import { customizedToast } from "@/utils/Toast/Toast";
+import { BACKEND_URL } from "@/config";
 
-const BACKEND_URL = "http://localhost:3000";
 
 type User = {
   id: string;
   name: string;
-  email:string;
   avatarUrl: string;
+  email?:string;
 };
 
 type AuthContextType = {
@@ -25,7 +25,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+
+  // useEffect(()=>{
+  //   localStorage.removeItem("user");
+  //   fetchUser();
+  // },[])
+
+
+  const [user, setUser] = useState<User | null>(()=>{
+    if(typeof window !== undefined){
+      return null;
+    }
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
   const [loading,setLoading] = useState<boolean>(false);
 
   const logout = async () => {
@@ -33,18 +46,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await axios.post(`${BACKEND_URL}/auth/signout`, {}, { withCredentials: true });
 
       if (response.data) {
-        toast.success("Logged Out Successfully!", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme:"dark",
-          transition: Bounce,
-        });
+        customizedToast({type:"success",message:`Logged out Successfully`})
         setUser(null);
+        localStorage.removeItem("user");
         setTimeout(() => {
           window.location.replace("/"); // Use replace to prevent back navigation
         }, 500);
@@ -70,8 +74,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       const response = await axios.get(`${BACKEND_URL}/auth/me`, { withCredentials: true });
       if (response.data) {
-        setUser(response.data.user);
-        console.log("user=",response.data.user);
+        const userDetails = {
+          id:response.data.user.id,
+          name:response.data.user.name,
+          avatarUrl:response.data.user.avatarUrl
+        }
+        setUser(userDetails);
+        localStorage.setItem("user", JSON.stringify(userDetails));
       }
     } catch (error) {
       console.log("Error fetching user:", error);

@@ -5,7 +5,6 @@ import Split from "react-split";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -13,6 +12,9 @@ import CodeMirror from "@uiw/react-codemirror";
 import { vscodeDark } from "@uiw/codemirror-theme-vscode";
 import { javascript } from "@codemirror/lang-javascript";
 import EditorFooter from "./EditorFooter";
+import axios from "axios";
+import { BACKEND_URL } from "@/config";
+import { customizedToast } from "@/utils/Toast/Toast";
 
 type SetStateBoolean = React.Dispatch<React.SetStateAction<boolean>>;
 
@@ -21,15 +23,31 @@ interface PlaygroundProps {
   setSuccess: SetStateBoolean;
   setSolved: SetStateBoolean;
 }
+interface Results{
+  input:string;
+  expected:string;
+  output:string;
+}
+interface SuccessStatus{
+  message:string,
+  results:Results[]
+}
+interface FailureStatus{
+  error:string,
+  testCase:Results
+}
+
 
 const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
   const languages = Object.keys(problem.starterCode || {});
   const [selectedLang, setSelectedLang] = useState(languages[0]);
-  const [userCode, setUserCode] = useState<string>(
+  const [userCode,setUserCode] = useState<string>(
     problem.starterCode[selectedLang as keyof typeof problem.starterCode] || ""
   );
-  const [isFullScreen, setIsFullScreen] = useState(false);
-  const [activeTestCaseId, setActiveTestCaseId] = useState<number>(0);
+  const [isFullScreen,setIsFullScreen] = useState(false);
+  const [activeTestCaseId,setActiveTestCaseId] = useState<number>(0);
+  const [loading,setLoading] = useState<boolean>(false);
+  const [status,setStatus] = useState<(SuccessStatus&FailureStatus)|null>(null);
 
   useEffect(() => {
     setUserCode(
@@ -46,14 +64,70 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     setIsFullScreen(!isFullScreen);
   };
 
-  const handleRun = () => {
+  const handleRun = async () => {
     console.log("Selected Language:", selectedLang);
     console.log("User Code:", userCode);
+    try {
+      setLoading(true);
+      const res = await axios.post(
+        `${BACKEND_URL}/api/run`,
+        {
+          code: userCode,
+          language: selectedLang,
+          slug: problem.slug,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(res.data);
+      setStatus(res.data);
+      customizedToast({ type: "success", message: res.data?.message });
+
+      console.log("expected output=", res.data?.testCase?.expected);
+      console.log("Actual output=", res.data?.testCase?.output);
+      console.log("results=", res.data?.results);
+      if (res.data?.error) {
+        customizedToast({
+          type: "error",
+          position: "top-center",
+          message: (
+            <>
+              {res.data?.error} <br /> Received Output: {res.data?.testCase?.output}
+            </>
+          ),
+        });
+      }
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.log(error.response?.data?.message);
+        customizedToast({
+          type: "error",
+          position: "top-center",
+          message: error.response?.data?.message || "An unexpected error occurred",
+        });
+      } else {
+        console.error("Unexpected error:", error);
+        customizedToast({
+          type: "error",
+          position: "top-center",
+          message: "An unexpected error occurred",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSubmit=()=>{
 
   }
+
+  const getStatusClass = () => {
+    if (status?.message) return "text-[#27AE60] bg-dark-layer-2";
+    if (status?.error) return "text-[#C0392B] bg-dark-layer-2";
+    return "bg-dark-fill-3 text-white";
+  };
 
   return (
     <div className="flex flex-col h-full bg-dark-layer-1 relative overflow-x-hidden">
@@ -73,7 +147,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
           </SelectContent>
         </Select>
         <div className="flex">
-          <EditorFooter handleSubmit={handleSubmit} />
+          <EditorFooter handleRun={handleRun} handleSubmit={handleSubmit} loading={loading}/>
 
         <button
           onClick={handleFullScreen}
@@ -113,16 +187,16 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
 
           <div className="flex flex-col w-full">
   <div className="flex mt-2 gap-2 w-full">
-    {problem.examples &&
-      problem.examples.map((example, index) => (
+    {problem.testCases &&
+      problem.testCases.map((testcase, index) => (
         <div
-          key={example.id}
+          key={testcase.id}
           className=""
           onClick={() => setActiveTestCaseId(index)}
         >
           <div
-            className={`font-medium w-full text-center transition-all focus:outline-none bg-dark-fill-3 hover:bg-dark-fill-2 rounded-md px-3 py-1 cursor-pointer
-              ${activeTestCaseId === index ? "text-white bg-dark-fill-2" : "text-gray-500"}
+            className={`${getStatusClass()} font-medium w-full text-center transition-all focus:outline-none rounded-md px-3 py-1 cursor-pointer
+              ${activeTestCaseId === index ? "bg-dark-layer-2" : "bg-neutral-800"}
             `}
           >
             Case - {index + 1}
@@ -133,17 +207,28 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
 
   <div className="font-semibold w-full mb-4">
     <p className="text-sm font-medium mt-4 text-white">Input:</p>
-    <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
+    <div className={` bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
+     text-white mt-2`}>
       <pre>
-        {problem.examples ? problem.examples[activeTestCaseId].inputText : ""}
+        {/* {problem.testCases ? JSON.stringify(problem.testCases) : "Hi"} */}
+        {problem.testCases ? problem.testCases[activeTestCaseId].description : ""}
       </pre>
     </div>
     <p className="text-sm font-medium mt-4 text-white">Expected Output:</p>
-    <div className="w-full cursor-text rounded-lg border px-3 py-[10px] bg-dark-fill-3 border-transparent text-white mt-2">
+    <div className={`${status?"text-[#27AE60]":"text-white"} bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
+      mt-2`}>
       <pre>
-        {problem.examples ? problem.examples[activeTestCaseId].outputText : ""}
+        {problem.testCases ? problem.testCases[activeTestCaseId].expected : ""}
       </pre>
     </div>
+   {status &&  <><p className="text-sm font-medium mt-4 text-white">Actual Output:</p>
+    <div className={`${getStatusClass()} w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
+      mt-2 overflow-x-hidden`}>
+      <pre>
+        {status.testCase && status.testCase?.output}
+        {status.results && JSON.stringify(status.results[activeTestCaseId].output)}
+      </pre>
+    </div></> }
   </div>
 </div>
 
@@ -155,3 +240,6 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
 };
 
 export default Playground;
+
+
+
