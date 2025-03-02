@@ -1,19 +1,24 @@
+import { useEffect, useState } from "react";
 import DotSpinnerLoader from "@/components/Loader/DotSpinner";
+import { BACKEND_URL } from "@/config";
 import { useAuth } from "@/hooks/useAuth";
-import {  useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
   const { user, loading, setLoading, fetchUser } = useAuth();
-  const redirectPath = localStorage.getItem("redirectPath") || "/";
-
+  const [redirectPath, setRedirectPath] = useState("/");
 
   useEffect(() => {
-    if (localStorage.getItem("user")) {
-      router.push(redirectPath);
+    if (typeof window !== "undefined") {
+      const storedPath = localStorage.getItem("redirectPath") || "/";
+      setRedirectPath(storedPath);
+
+      if (localStorage.getItem("user")) {
+        router.push(storedPath);
+      }
     }
-  }, [redirectPath, router]);
+  }, [router]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -35,7 +40,7 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      window.location.href = "http://localhost:3000/auth/google";
+      window.location.href = `${BACKEND_URL}/auth/google`;
     } catch (error) {
       console.error("Google sign-in error:", error);
     }

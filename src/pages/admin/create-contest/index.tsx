@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { BACKEND_URL } from "@/config";
 
 const contestSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters long"),
@@ -32,7 +33,7 @@ export default function CreateContest() {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/create",
+        `${BACKEND_URL}/api/create`,
         data,
         { withCredentials: true }
       );

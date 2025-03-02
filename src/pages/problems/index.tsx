@@ -28,7 +28,7 @@ export default function Home() {
     };
 
     getQuestions();
-  }, []);
+  }, [setLoading]);
 
   if (!hasMounted) {
     return null;

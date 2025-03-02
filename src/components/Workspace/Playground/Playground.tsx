@@ -53,7 +53,7 @@ const Playground: React.FC<PlaygroundProps> = ({ problem }) => {
     setUserCode(
       problem.starterCode[selectedLang as keyof typeof problem.starterCode]
     );
-  }, [selectedLang, problem.starterCode]);
+  }, [selectedLang, problem.starterCode,problem]);
 
   const handleFullScreen = () => {
     if (isFullScreen) {

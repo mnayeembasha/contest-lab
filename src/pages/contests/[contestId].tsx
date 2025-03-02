@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { mockContest } from "@/utils/data/contest";
 import Workspace from "@/components/Workspace2/Workspace";
 import { ChevronLeft, ChevronRight, Menu, Send, X } from "lucide-react";
@@ -34,108 +34,8 @@ const ContestPage = () => {
   const [loading,setLoading] = useState<boolean>(false);
   const {user} = useAuth();
   const pathName = usePathname();
-  const [userStartTime, setUserStartTime] = useState<number | null>(null); // Track user's start time
-  // const [contestStartTime, setContestStartTime] = useState<number | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false); // ✅ State for confetti animation
-
-  useEffect(() => {
-    if (!user) {
-      customizedToast({
-        type: "error",
-        position: "top-center",
-        message: "Login to continue to contest",
-      });
-
-      localStorage.setItem("redirectPath", pathName);
-
-      setTimeout(() => {
-        router.push("/login");
-      }, 2000);
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (!contest) return;
-    const currentProblem = contest.problems[currentIndex];
-    const problemSlug = currentProblem.slug;
-    const languages = Object.keys(currentProblem.starterCode) as (keyof typeof currentProblem.starterCode)[];
-
-    if (!userAnswers[problemSlug]) {
-      const selectedLanguage = languages[0];
-      const starterCode = currentProblem.starterCode[selectedLanguage];
-      setUserAnswers(prev => ({
-        ...prev,
-        [problemSlug]: {
-          code: { [selectedLanguage]: starterCode },
-          selectedLanguage
-        }
-      }));
-    }
-  }, [currentIndex, contest]);
-
-   // Initialize user's start time from localStorage or set it
-   useEffect(() => {
-    if (!user || !contestId || !contest?.startTime) return;
-
-    const storageKey = `contestStartTime_${contestId}_${user.id}`;
-    const savedStartTime = localStorage.getItem(storageKey);
-    const contestStartTimeMs = new Date(contest.startTime).getTime();
-    const currentTime = Date.now();
-
-    if (savedStartTime) {
-      const savedTime = parseInt(savedStartTime);
-      // Ensure user's start time is not before contest start time
-      if (savedTime < contestStartTimeMs) {
-        localStorage.setItem(storageKey, contestStartTimeMs.toString());
-        setUserStartTime(contestStartTimeMs);
-      } else {
-        setUserStartTime(savedTime);
-      }
-    } else {
-      // User starts now; set start time to max(contest start time, current time)
-      const startTime = Math.max(contestStartTimeMs, currentTime);
-      localStorage.setItem(storageKey, startTime.toString());
-      setUserStartTime(startTime);
-    }
-  }, [user, contestId, contest?.startTime]);
-
-  useEffect(() => {
-    if (!contest?.startTime || !contest?.duration) return;
-
-    const contestStartTime = new Date(contest.startTime).getTime();
-    const contestDurationMs = parseInt(contest.duration) * 60 * 60 * 1000;
-    const contestEndTime = contestStartTime + contestDurationMs;
-
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const remainingTime = contestEndTime - now;
-
-      if (remainingTime <= 0) {
-        setTimeLeft("00:00:00");
-        if (!hasSubmitted.current) {
-          hasSubmitted.current = true;
-          handleSubmit();
-        }
-        return;
-      }
-
-      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-
-      setTimeLeft(
-        `${hours.toString().padStart(2, "0")}:${minutes
-          .toString()
-          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-      );
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-
-    return () => clearInterval(interval);
-  }, [contest]);
+  const [userStartTime, setUserStartTime] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const handleNext = () => {
     if (currentIndex < contest.problems.length - 1) {
@@ -152,15 +52,6 @@ const ContestPage = () => {
   const handleToggleQuestion = (index: number) => {
     setCurrentIndex(index);
     setSidebarOpen(false);
-  };
-
-  if (!contest) return <p>Loading...</p>;
-
-  const currentProblem = contest.problems[currentIndex];
-  const problemSlug = currentProblem.slug;
-  const problemData = userAnswers[problemSlug] || {
-    code: {},
-    selectedLanguage: Object.keys(currentProblem.starterCode)[0]
   };
 
   const handleCodeChange = (newCode: string) => {
@@ -193,8 +84,69 @@ const ContestPage = () => {
     }));
   };
 
+  useEffect(() => {
+    if (!user) {
+      customizedToast({
+        type: "error",
+        position: "top-center",
+        message: "Login to continue to contest",
+      });
 
-  const handleSubmit = async () => {
+      localStorage.setItem("redirectPath", pathName);
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    }
+  }, [pathName,router,user]);
+
+
+  useEffect(() => {
+    if (!contest) return;
+    const currentProblem = contest.problems[currentIndex];
+    const problemSlug = currentProblem.slug;
+    const languages = Object.keys(currentProblem.starterCode) as (keyof typeof currentProblem.starterCode)[];
+
+    if (!userAnswers[problemSlug]) {
+      const selectedLanguage = languages[0];
+      const starterCode = currentProblem.starterCode[selectedLanguage];
+      setUserAnswers(prev => ({
+        ...prev,
+        [problemSlug]: {
+          code: { [selectedLanguage]: starterCode },
+          selectedLanguage
+        }
+      }));
+    }
+  }, [currentIndex, contest,userAnswers]);
+
+   // Initialize user's start time from localStorage or set it
+   useEffect(() => {
+    if (!user || !contestId || !contest?.startTime) return;
+
+    const storageKey = `contestStartTime_${contestId}_${user.id}`;
+    const savedStartTime = localStorage.getItem(storageKey);
+    const contestStartTimeMs = new Date(contest.startTime).getTime();
+    const currentTime = Date.now();
+
+    if (savedStartTime) {
+      const savedTime = parseInt(savedStartTime);
+      // Ensure user's start time is not before contest start time
+      if (savedTime < contestStartTimeMs) {
+        localStorage.setItem(storageKey, contestStartTimeMs.toString());
+        setUserStartTime(contestStartTimeMs);
+      } else {
+        setUserStartTime(savedTime);
+      }
+    } else {
+      // User starts now; set start time to max(contest start time, current time)
+      const startTime = Math.max(contestStartTimeMs, currentTime);
+      localStorage.setItem(storageKey, startTime.toString());
+      setUserStartTime(startTime);
+    }
+  }, [user, contestId, contest?.startTime]);
+
+  const handleSubmit = useCallback( async () => {
     if (!user) {
       customizedToast({ type: "error", position: "top-center", message: "Cannot submit the contest" });
       return;
@@ -233,7 +185,58 @@ const ContestPage = () => {
     finally{
       setLoading(false);
     }
+  },[contestId,router,user,userAnswers,userStartTime]);
+
+  useEffect(() => {
+    if (!contest?.startTime || !contest?.duration) return;
+
+    const contestStartTime = new Date(contest.startTime).getTime();
+    const contestDurationMs = parseInt(contest.duration) * 60 * 60 * 1000;
+    const contestEndTime = contestStartTime + contestDurationMs;
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const remainingTime = contestEndTime - now;
+
+      if (remainingTime <= 0) {
+        setTimeLeft("00:00:00");
+        if (!hasSubmitted.current) {
+          hasSubmitted.current = true;
+          handleSubmit();
+        }
+        return;
+      }
+
+      const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+
+      setTimeLeft(
+        `${hours.toString().padStart(2, "0")}:${minutes
+          .toString()
+          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+      );
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [contest,handleSubmit]);
+
+
+
+  if (!contest) return <p>Loading...</p>;
+
+  const currentProblem = contest.problems[currentIndex];
+  const problemSlug = currentProblem.slug;
+  const problemData = userAnswers[problemSlug] || {
+    code: {},
+    selectedLanguage: Object.keys(currentProblem.starterCode)[0]
   };
+
+
+
 
 
   return (

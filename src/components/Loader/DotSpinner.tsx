@@ -1,4 +1,4 @@
-import './DotSpinner.css';
+
 interface DotSpinnerProps{
   size?:string,
   color?:string

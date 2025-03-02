@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Trash2, PlusCircle } from "lucide-react";
 import { customizedToast } from "@/utils/Toast/Toast";
+import { BACKEND_URL } from "@/config";
 // import { useAuth } from "@/hooks/useAuth";
 
 // Form validation schema
@@ -71,7 +72,7 @@ const AddQuestionForm = () => {
     console.log(data);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/questions/add",
+        `${BACKEND_URL}/api/questions/add`,
         data
       );
       customizedToast({ type:"success", message: response.data.message });

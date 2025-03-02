@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatInTimeZone } from "date-fns-tz";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Contest } from "@/utils/types/contest";
 import { Clock, Users } from "lucide-react";
 import { mockContest } from "@/utils/data/contest";
@@ -13,27 +13,28 @@ import { useAuth } from "@/hooks/useAuth";
 const mockContests: Contest[] = [mockContest];
 
 const Countdown = ({ startTime }: { startTime: Date }) => {
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-
-  function calculateTimeLeft() {
+  const calculateTimeLeft = useCallback(() => {
     const now = new Date();
     const difference = startTime.getTime() - now.getTime();
 
     if (difference <= 0) return null; // Contest has started
 
-    const hours = Math.floor(difference / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    return {
+      hours: Math.floor(difference / (1000 * 60 * 60)),
+      minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+      seconds: Math.floor((difference % (1000 * 60)) / 1000),
+    };
+    
+  }, [startTime]);
 
-    return { hours, minutes, seconds };
-  }
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [calculateTimeLeft]);
 
   if (!timeLeft) return <span className="text-green-400">Contest is Live!</span>;
 
@@ -51,19 +52,19 @@ const Index = () => {
   const {user} = useAuth();
 
   const pathName = usePathname();
-  // useEffect(() => {
-  //   if (!user) {
-  //     customizedToast({
-  //       type: "error",
-  //       position: "top-center",
-  //       message: "Login to continue to contest",
-  //     });
+  useEffect(() => {
+    if (!user) {
+      customizedToast({
+        type: "error",
+        position: "top-center",
+        message: "Login to continue to contest",
+      });
 
-  //     localStorage.setItem("redirectPath", pathName);
+      localStorage.setItem("redirectPath", pathName);
 
-  //     router.push("/login");
-  //   }
-  // }, []);
+      router.push("/login");
+    }
+  }, [pathName,router,user]);
 
   useEffect(() => {
     setContests(mockContests);

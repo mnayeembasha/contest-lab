@@ -32,7 +32,7 @@ const ProblemPage = () =>{
     };
 
     getQuestion();
-  }, [pid]);
+  }, [pid,setLoading]);
 
   if (!hasMounted) {
     return null;
