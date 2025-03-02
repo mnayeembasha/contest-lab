@@ -6,44 +6,54 @@ import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
-  const { user, loading, setLoading, fetchUser } = useAuth();
-  const [redirectPath, setRedirectPath] = useState("/");
+  const { user, loading, setLoading } = useAuth();
+  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const [checkedAuth, setCheckedAuth] = useState<boolean>(false);
 
+  // Load redirectPath from localStorage once
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedPath = localStorage.getItem("redirectPath") || "/";
-      setRedirectPath(storedPath);
+      setRedirectPath((prev) => prev ?? storedPath); // Only update if it's null
 
       if (localStorage.getItem("user")) {
-        router.push(storedPath);
+        router.replace(storedPath);
+      } else {
+        setCheckedAuth(true);
       }
     }
   }, [router]);
 
+  // Fetch user only when necessary
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       if (!user && checkedAuth) {
+  //         await fetchUser(); // Ensure fetchUser is awaited properly
+  //       }
+  //     } catch (err) {
+  //       console.error("Error fetching user:", err);
+  //     }
+  //   };
+
+  //   checkAuth();
+  // }, [user, checkedAuth, fetchUser]);
+
+  // Redirect if user is authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      if (!user) {
-        await fetchUser();
-      }
-      if (user) {
-        router.push(redirectPath);
-      }
-    };
+    if (user && redirectPath) {
+      router.replace(redirectPath);
+    }
+  }, [user, redirectPath, router]);
 
-    checkAuth();
-  }, [user, router, fetchUser, redirectPath]);
-
-  if (loading) {
+  // Show loader if authentication check isn't complete
+  if (loading || !checkedAuth) {
     return <DotSpinnerLoader />;
   }
 
-  const handleGoogleLogin = async () => {
-    try {
-      setLoading(true);
-      window.location.href = `${BACKEND_URL}/auth/google`;
-    } catch (error) {
-      console.error("Google sign-in error:", error);
-    }
+  const handleGoogleLogin = () => {
+    setLoading(true);
+    window.location.href = `${BACKEND_URL}/auth/google`;
   };
 
   return (
