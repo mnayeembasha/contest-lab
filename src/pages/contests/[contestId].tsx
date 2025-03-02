@@ -9,6 +9,9 @@ import { BACKEND_URL } from "@/config";
 import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
+import Confetti from "react-confetti";
+import DotSpinner from "@/components/Loader/DotSpinner";
+
 
 interface UserAnswers {
   [problemSlug: string]: {
@@ -28,8 +31,13 @@ const ContestPage = () => {
   const [userAnswers, setUserAnswers] = useState<UserAnswers>({});
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [timeLeft, setTimeLeft] = useState("");
+  const [loading,setLoading] = useState<boolean>(false);
   const {user} = useAuth();
   const pathName = usePathname();
+  const [userStartTime, setUserStartTime] = useState<number | null>(null); // Track user's start time
+  // const [contestStartTime, setContestStartTime] = useState<number | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false); // ✅ State for confetti animation
+
   useEffect(() => {
     if (!user) {
       customizedToast({
@@ -66,6 +74,32 @@ const ContestPage = () => {
     }
   }, [currentIndex, contest]);
 
+   // Initialize user's start time from localStorage or set it
+   useEffect(() => {
+    if (!user || !contestId || !contest?.startTime) return;
+
+    const storageKey = `contestStartTime_${contestId}_${user.id}`;
+    const savedStartTime = localStorage.getItem(storageKey);
+    const contestStartTimeMs = new Date(contest.startTime).getTime();
+    const currentTime = Date.now();
+
+    if (savedStartTime) {
+      const savedTime = parseInt(savedStartTime);
+      // Ensure user's start time is not before contest start time
+      if (savedTime < contestStartTimeMs) {
+        localStorage.setItem(storageKey, contestStartTimeMs.toString());
+        setUserStartTime(contestStartTimeMs);
+      } else {
+        setUserStartTime(savedTime);
+      }
+    } else {
+      // User starts now; set start time to max(contest start time, current time)
+      const startTime = Math.max(contestStartTimeMs, currentTime);
+      localStorage.setItem(storageKey, startTime.toString());
+      setUserStartTime(startTime);
+    }
+  }, [user, contestId, contest?.startTime]);
+
   useEffect(() => {
     if (!contest?.startTime || !contest?.duration) return;
 
@@ -79,12 +113,10 @@ const ContestPage = () => {
 
       if (remainingTime <= 0) {
         setTimeLeft("00:00:00");
-
         if (!hasSubmitted.current) {
-          hasSubmitted.current = true; // ✅ Prevent multiple submissions
+          hasSubmitted.current = true;
           handleSubmit();
         }
-
         return;
       }
 
@@ -104,7 +136,6 @@ const ContestPage = () => {
 
     return () => clearInterval(interval);
   }, [contest]);
-
 
   const handleNext = () => {
     if (currentIndex < contest.problems.length - 1) {
@@ -168,36 +199,46 @@ const ContestPage = () => {
       customizedToast({ type: "error", position: "top-center", message: "Cannot submit the contest" });
       return;
     }
+    setLoading(true);
+    const now = Date.now();
+    const timeTakenValue = userStartTime ? now - userStartTime : null;
+    setUserStartTime(timeTakenValue);
+
     const submission = {
       userId: user.id,
       contestId,
+      timeTaken: timeTakenValue,
       answers: Object.entries(userAnswers).reduce((acc, [slug, data]) => {
         acc[slug] = { [data.selectedLanguage]: data.code[data.selectedLanguage] };
         return acc;
-      }, {} as Record<string, Record<string, string>>)
+      }, {} as Record<string, Record<string, string>>),
     };
 
     try {
       await axios.post(`${BACKEND_URL}/api/contest/submit`, submission, { withCredentials: true });
       customizedToast({ type: "success", position: "top-center", message: "Contest submitted successfully!" });
-      setTimeout(()=>{
+      setShowConfetti(true);
+      setTimeout(() => {
+        setShowConfetti(false);
         router.push("/contests");
-      },2000)
+      }, 4000);
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         customizedToast({ type: "error", position: "top-center", message: error.response?.data?.message || "Error submitting contest" });
-        // router.push("/contests");
       } else {
         console.error("Unexpected error:", error);
         customizedToast({ type: "error", position: "top-center", message: "Something went wrong" });
-        // router.push("/contests");
       }
+    }
+    finally{
+      setLoading(false);
     }
   };
 
 
   return (
     <div className="flex">
+            {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} />} {/* ✅ Confetti Animation */}
       {/* Sidebar Navigation (Toggle) */}
       <div
         className={`fixed inset-y-0 left-0 w-64 bg-dark-layer-2 p-4 overflow-y-auto transform transition-transform duration-300 ${
@@ -267,8 +308,9 @@ const ContestPage = () => {
               <Button
                className='px-3 py-1.5 font-bold items-center transition-all focus:outline-none inline-flex text-sm text-white bg-gradient-to-b from-green-400 to-green-800 hover:opacity-80 rounded-lg'
                 onClick={handleSubmit}
+                disabled={loading}
               >
-               <Send/> Submit
+               {loading?<div className="text-white flex gap-x-1 items-center"><DotSpinner size="18px" color="white"/> Submitting...</div>:<div className="flex gap-x-1 items-center"><Send/>Submit</div>}
               </Button>
             )}
           </div>

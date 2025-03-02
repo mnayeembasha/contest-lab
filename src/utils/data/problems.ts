@@ -17,25 +17,25 @@
 //         print(two_sum(nums, target))  # Output result for each test case
 
 
-// def is_valid(s):
-//     stack = []
-//     mapping = {')': '(', '}': '{', ']': '['}
+  // def is_valid(s):
+  //     stack = []
+  //     mapping = {')': '(', '}': '{', ']': '['}
 
-//     for char in s:
-//         if char in mapping:  # If it's a closing bracket
-//             top_element = stack.pop() if stack else '#'  # Pop if stack is not empty, else use dummy value
-//             if mapping[char] != top_element:  # Check for valid match
-//                 return False
-//         else:
-//             stack.append(char)  # Push opening brackets to stack
+  //     for char in s:
+  //         if char in mapping:  # If it's a closing bracket
+  //             top_element = stack.pop() if stack else '#'  # Pop if stack is not empty, else use dummy value
+  //             if mapping[char] != top_element:  # Check for valid match
+  //                 return False
+  //         else:
+  //             stack.append(char)  # Push opening brackets to stack
 
-//     return not stack  # Return True if stack is empty, else False
+  //     return not stack  # Return True if stack is empty, else False
 
-// if __name__ == "__main__":
-//     import sys
-//     for line in sys.stdin:
-//         line = line.strip().strip("'\"")  # Remove surrounding quotes
-//         print(str(is_valid(line)).lower())  # Print result in lowercase
+  // if __name__ == "__main__":
+  //     import sys
+  //     for line in sys.stdin:
+  //         line = line.strip().strip("'\"")  # Remove surrounding quotes
+  //         print(str(is_valid(line)).lower())  # Print result in lowercase
 
 
 
