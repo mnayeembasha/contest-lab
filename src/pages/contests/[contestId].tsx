@@ -1,3 +1,4 @@
+'use client'
 import { useRouter } from "next/router";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { mockContest } from "@/utils/data/contest";
@@ -11,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { usePathname } from "next/navigation";
 import Confetti from "react-confetti";
 import DotSpinner from "@/components/Loader/DotSpinner";
-
+import Navbar from "../../components/Navbar/Navbar";
 
 interface UserAnswers {
   [problemSlug: string]: {
@@ -33,7 +34,7 @@ const ContestPage = () => {
   const [timeLeft, setTimeLeft] = useState("");
   const [loading,setLoading] = useState<boolean>(false);
   const {user} = useAuth();
-  const pathName = usePathname();
+
   const [userStartTime, setUserStartTime] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -84,15 +85,16 @@ const ContestPage = () => {
     }));
   };
 
+  const pathName = usePathname();
   useEffect(() => {
     if (!user) {
-      customizedToast({
-        type: "error",
-        position: "top-center",
-        message: "Login to continue to contest",
-      });
+      // customizedToast({
+      //   type: "error",
+      //   position: "top-center",
+      //   message: "Login to continue to contest",
+      // });
 
-      localStorage.setItem("redirectPath", pathName);
+      localStorage.setItem("redirectPath", pathName || "/");
 
       setTimeout(() => {
         router.push("/login");
@@ -202,7 +204,7 @@ const ContestPage = () => {
         setTimeLeft("00:00:00");
         if (!hasSubmitted.current) {
           hasSubmitted.current = true;
-          handleSubmit();
+          // handleSubmit();
         }
         return;
       }
@@ -240,9 +242,9 @@ const ContestPage = () => {
 
 
   return (
-    <div className="flex">
+    <div className="flex flex-col bg-dark-layer-2">
             {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} />} {/* ✅ Confetti Animation */}
-      {/* Sidebar Navigation (Toggle) */}
+      <Navbar/>
       <div
         className={`fixed inset-y-0 left-0 w-64 bg-dark-layer-2 p-4 overflow-y-auto transform transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -285,7 +287,7 @@ const ContestPage = () => {
             <h1 className="text-2xl font-bold">Problem List</h1>
           </div>
           <div>
-          <h1 className="text-3xl font-extrabold tracking-tighter select-none bg-gradient-to-b from-amber-300 to-red-500 bg-clip-text text-transparent">{contest.contestName}</h1>
+          {/* <h1 className="text-3xl font-extrabold tracking-tighter select-none bg-gradient-to-b from-amber-300 to-red-500 bg-clip-text text-transparent">{contest.contestName}</h1> */}
           </div>
           {/* Navigation Buttons */}
           <div className="flex space-x-4">

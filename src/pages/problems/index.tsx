@@ -5,7 +5,7 @@ import axios from "axios";
 import { BACKEND_URL } from "@/config";
 import Link from "next/link";
 import { ProblemType } from "@/utils/types/problem";
-
+import Layout from "../layout"
 
 
 export default function Home() {
@@ -36,24 +36,29 @@ export default function Home() {
 
   if (loading) {
     return (
-	<div className="max-w-[1200px] mx-auto sm:w-7/12 w-full animate-pulse">
-	{[...Array(10)].map((_, idx) => (
-	  <LoadingSkeleton key={idx} />
-	))}
-  </div>
+      <div className="max-w-[1200px] mx-auto sm:w-7/12 w-full">
+        {[...Array(10)].map((_, idx) => (
+          <LoadingSkeleton key={idx} />
+        ))}
+      </div>
     );
   }
 
+  if(!problems){
+    return <div className="flex justify-center items-center h-screen">Failed to fetch Problems</div>
+  }
+
   return (
-    <div className="mt-10">
+  <Layout>
+      <div className="mt-10">
    <table className="text-sm text-left text-gray-500 dark:text-gray-400 sm:w-7/12 w-full max-w-[1200px] mx-auto">
      {
        <>
-         <thead className="text-xs text-gray-700 uppercase dark:text-gray-400 border-b ">
+         {problems && <thead className="text-xs text-gray-700 uppercase dark:text-gray-400 border-b ">
            <tr>
-             <th scope="col" className="px-1 py-3 w-0 font-medium">
+             {/* <th scope="col" className="px-1 py-3 w-0 font-medium">
                Status
-             </th>
+             </th> */}
              <th scope="col" className="px-6 py-3 w-0 font-medium">
                Title
              </th>
@@ -64,9 +69,9 @@ export default function Home() {
                Category
              </th>
            </tr>
-         </thead>
+         </thead>}
          <tbody className="text-gray-400 dark:text-gray-400 ">
-           {!problems && (
+           {loading && (
              <div className="max-w-[1200px] mx-auto sm:w-7/12 w-full animate-pulse">
                {[...Array(10)].map((_, idx) => (
                  <LoadingSkeleton key={idx} />
@@ -86,11 +91,11 @@ export default function Home() {
                    className={`${idx % 2 == 1 ? "bg-dark-layer-1" : ""}`}
                    key={problem._id}
                  >
-                   <th className="px-2 py-4 font-medium whitespace-nowrap text-dark-green-s">
-                     {/* {solvedProblems.includes(problem.id) && (
+                   {/* <th className="px-2 py-4 font-medium whitespace-nowrap text-dark-green-s">
+                     {solvedProblems.includes(problem.id) && (
                        <BsCheckCircle fontSize={"18"} width="18" />
-                     )} */}
-                   </th>
+                     )}
+                   </th> */}
                    <td className="px-6 py-4">
                      {problem.slug ? (
                        <Link
@@ -120,16 +125,25 @@ export default function Home() {
      }
    </table>
  </div>
+  </Layout>
   );
 }
 
 const LoadingSkeleton = () => {
   return (
-    <div className="flex items-center space-x-12 mt-4 px-6">
-      <div className="w-6 h-6 shrink-0 rounded-full bg-dark-layer-1"></div>
-      <div className="h-4 sm:w-52  w-32  rounded-full bg-dark-layer-1"></div>
-      <div className="h-4 sm:w-52  w-32 rounded-full bg-dark-layer-1"></div>
-      <div className="h-4 sm:w-52 w-32 rounded-full bg-dark-layer-1"></div>
+    <div className="flex items-center gap-4 mt-4 px-6">
+      {/* <div className="w-6 h-6 shrink-0 rounded-full bg-dark-layer-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent animate-shimmer"></div>
+      </div> */}
+      <div className="h-4 sm:w-52 w-32 rounded-full bg-dark-layer-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent animate-shimmer"></div>
+      </div>
+      <div className="h-4 sm:w-52 w-32 rounded-full bg-dark-layer-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent animate-shimmer"></div>
+      </div>
+      <div className="h-4 sm:w-52 w-32 rounded-full bg-dark-layer-1 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-400/20 to-transparent animate-shimmer"></div>
+      </div>
       <span className="sr-only">Loading...</span>
     </div>
   );

@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext,useContext,useState } from "react";
+import React, { createContext,useContext,useState,useEffect } from "react";
 import axios from "axios";
 import { customizedToast } from "@/utils/Toast/Toast";
 import { BACKEND_URL } from "@/config";
@@ -26,10 +26,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
-  // useEffect(()=>{
-  //   localStorage.removeItem("user");
-  //   fetchUser();
-  // },[])
+  useEffect(()=>{
+    localStorage.removeItem("user");
+    fetchUser();
+  },[])
 
 
   const [user, setUser] = useState<User | null>(()=>{

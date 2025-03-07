@@ -8,6 +8,15 @@ module.exports = {
   ],
   theme: {
   	extend: {
+		animation: {
+			shimmer: "shimmer 1.1s infinite linear",
+		  },
+		  keyframes: {
+			shimmer: {
+			  "0%": { transform: "translateX(-100%)" },
+			  "100%": { transform: "translateX(100%)" },
+			},
+		  },
   		colors: {
   			'dark-layer-1': 'rgb(40,40,40)',
   			'dark-layer-2': 'rgb(26,26,26)',

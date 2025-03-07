@@ -16,26 +16,60 @@
 //         target = int(target_str)
 //         print(two_sum(nums, target))  # Output result for each test case
 
-
-  // def is_valid(s):
-  //     stack = []
-  //     mapping = {')': '(', '}': '{', ']': '['}
-
-  //     for char in s:
-  //         if char in mapping:  # If it's a closing bracket
-  //             top_element = stack.pop() if stack else '#'  # Pop if stack is not empty, else use dummy value
-  //             if mapping[char] != top_element:  # Check for valid match
-  //                 return False
-  //         else:
-  //             stack.append(char)  # Push opening brackets to stack
-
-  //     return not stack  # Return True if stack is empty, else False
+// def is_valid(s):
+//     stack = []
+//     mapping = {")": "(", "}": "{", "]": "["}
+//     for char in s:
+//         if char in mapping:
+//             top_element = stack.pop() if stack else '#'
+//             if mapping[char] != top_element:
+//                 return False
+//         else:
+//             stack.append(char)
+//     return not stack
 
   // if __name__ == "__main__":
   //     import sys
   //     for line in sys.stdin:
   //         line = line.strip().strip("'\"")  # Remove surrounding quotes
   //         print(str(is_valid(line)).lower())  # Print result in lowercase
+
+
+  // def max_subarray(nums):
+  // if not nums:
+  //     raise ValueError("The input array is empty")
+
+  // current_sum = max_sum = nums[0]
+  // for num in nums[1:]:
+  //     current_sum = max(num, current_sum + num)
+  //     max_sum = max(max_sum, current_sum)
+  // return max_sum
+
+// from collections import deque
+
+// def level_order_traversal(root):
+//     if not root:
+//         return []
+
+//     result = []
+//     queue = deque([root])
+
+//     while queue:
+//         level_size = len(queue)
+//         current_level = []
+
+//         for _ in range(level_size):
+//             node = queue.popleft()
+//             current_level.append(node.val)
+
+//             if node.left:
+//                 queue.append(node.left)
+//             if node.right:
+//                 queue.append(node.right)
+
+//         result.append(current_level)
+
+//     return result
 
 
 
@@ -130,13 +164,13 @@ export const problems = [
       {
         "id": 1,
         "inputText": "s = '()'",
-        "outputText": "true",
+        "outputText": "True",
         "explanation": "Valid as () is a correct sequence."
       },
       {
         "id": 2,
         "inputText": "s = '()[]{}'",
-        "outputText": "true",
+        "outputText": "True",
         "explanation": "Valid as ()[]{}, all pairs are matched."
       }
     ],
@@ -146,16 +180,16 @@ export const problems = [
       "Each opening bracket must have a corresponding closing bracket in the correct order"
     ],
     "testCases": [
-      { "id": 1, "input": "'()'", "expected": "true", "description": "s='()'" },
-      { "id": 2, "input": "'()[]{}'", "expected": "true", "description": "s='()[]{}'" },
-      { "id": 3, "input": "'(]'", "expected": "false", "description": "s='(]'" }
+      { "id": 1, "input": "'()'", "expected": "True", "description": "s='()'" },
+      { "id": 2, "input": "'()[]{}'", "expected": "True", "description": "s='()[]{}'" },
+      { "id": 3, "input": "'(]'", "expected": "False", "description": "s='(]'" }
     ],
     "hiddenTestCases": [
-      { "input": "'[{()}]'", "expected": "true", "description": "s='[{()}]'" },
-      { "input": "'{[)]}'", "expected": "false", "description": "s='{[)]}'" },
-      { "input": "'()()()()'", "expected": "true", "description": "s='()()()()'" },
-      { "input": "'([)]'", "expected": "false", "description": "s='([)]'" },
-      { "input": "'((()))'", "expected": "true", "description": "s='((()))'" }
+      { "input": "'[{()}]'", "expected": "True", "description": "s='[{()}]'" },
+      { "input": "'{[)]}'", "expected": "False", "description": "s='{[)]}'" },
+      { "input": "'()()()()'", "expected": "True", "description": "s='()()()()'" },
+      { "input": "'([)]'", "expected": "False", "description": "s='([)]'" },
+      { "input": "'((()))'", "expected": "True", "description": "s='((()))'" }
     ]
   },
   {

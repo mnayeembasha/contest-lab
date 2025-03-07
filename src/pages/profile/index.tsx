@@ -40,7 +40,7 @@ export default function Profile() {
   }
 
   return (
-   <div className="min-h-[90vh] bg-neutral-900 p-4 flex items-center justify-center">
+   <div className="min-h-screen bg-neutral-900 p-4 flex items-center justify-center">
   <div className="bg-neutral-800 rounded-3xl shadow-xl w-full max-w-2xl mt-20 relative pt-20 pb-8 px-4">
     <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
       <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white bg-white">

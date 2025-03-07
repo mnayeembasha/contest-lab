@@ -1,3 +1,4 @@
+'use client'
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatInTimeZone } from "date-fns-tz";
@@ -9,6 +10,8 @@ import { useRouter } from "next/router";
 import { customizedToast } from "@/utils/Toast/Toast";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import Navbar from "@/components/Navbar/Navbar";
+// import Layout from "../layout";
 
 const mockContests: Contest[] = [mockContest];
 
@@ -24,7 +27,7 @@ const Countdown = ({ startTime }: { startTime: Date }) => {
       minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
       seconds: Math.floor((difference % (1000 * 60)) / 1000),
     };
-    
+
   }, [startTime]);
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
@@ -46,25 +49,17 @@ const Countdown = ({ startTime }: { startTime: Date }) => {
 };
 
 const Index = () => {
-
   const router = useRouter();
   const [contests, setContests] = useState<Contest[]>([]);
-  const {user} = useAuth();
-
+  const { user } = useAuth();
   const pathName = usePathname();
+
   useEffect(() => {
     if (!user) {
-      customizedToast({
-        type: "error",
-        position: "top-center",
-        message: "Login to continue to contest",
-      });
-
       localStorage.setItem("redirectPath", pathName);
-
-      router.push("/login");
+      router.push("/login?redirectPath=/contests");
     }
-  }, [pathName,router,user]);
+  }, [pathName, router, user]);
 
   useEffect(() => {
     setContests(mockContests);
@@ -72,7 +67,7 @@ const Index = () => {
 
   const handleJoinContest = (contest: Contest) => {
     const currentTime = new Date();
-    const startTime = new Date(contest.startTime); // Keep UTC time
+    const startTime = new Date(contest.startTime);
     const durationHours = parseFloat(contest.duration);
     const durationMs = durationHours * 60 * 60 * 1000;
     const endTime = new Date(startTime.getTime() + durationMs);
@@ -99,8 +94,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-dark-layer-2 px-4 py-8 animate-fade-in text-white">
-      <div className="max-w-7xl mx-auto">
+
+     <div className="min-h-screen w-full  bg-dark-layer-2  animate-fade-in text-white bg-gradient-to-br from-[#1a001f] via-[#2b001d] to-[#3a0024]">
+      <Navbar/>
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tighter mb-4">Coding Contests</h1>
           <p className="text-muted-foreground text-lg">
@@ -110,11 +107,28 @@ const Index = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {contests.map((contest) => {
-            const startTime = new Date(contest.startTime); // Keep UTC time
+            const startTime = new Date(contest.startTime);
             const durationHours = parseFloat(contest.duration);
             const durationMs = durationHours * 60 * 60 * 1000;
             const endTime = new Date(startTime.getTime() + durationMs);
-            const isActive = new Date() >= startTime && new Date() <= endTime;
+            const currentTime = new Date();
+
+            let statusText = "Inactive";
+            let statusClass = "bg-red-100 text-red-800";
+            let buttonLabel = "Not Started";
+            let isButtonDisabled = true;
+
+            if (currentTime >= startTime && currentTime <= endTime) {
+              statusText = "Active";
+              statusClass = "bg-green-100 text-green-800";
+              buttonLabel = "Join Contest";
+              isButtonDisabled = false;
+            } else if (currentTime > endTime) {
+              statusText = "Ended";
+              statusClass = "bg-gray-400 text-gray-900";
+              buttonLabel = "Contest Ended";
+              isButtonDisabled = true;
+            }
 
             return (
               <Card
@@ -126,20 +140,22 @@ const Index = () => {
                     <span className="text-white text-2xl font-bold tracking-tight">
                       {contest.contestName}
                     </span>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                    }`}>
-                      {isActive ? "Active" : "Inactive"}
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}`}>
+                      {statusText}
                     </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center text-muted-foreground">
                     <Clock className="h-4 w-4 mr-2" />
-                    <span>
-                      <Countdown startTime={startTime} />
-                      {"  (" + formatInTimeZone(startTime, "Asia/Kolkata", "MMM d, h:mm a") + ")"}
-                    </span>
+                    {currentTime > endTime ? (
+                      <span className="text-gray-500">Contest Ended</span>
+                    ) : (
+                      <span>
+                        <Countdown startTime={startTime} />
+                        {"  (" + formatInTimeZone(startTime, "Asia/Kolkata", "MMM d, h:mm a") + ")"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center text-muted-foreground">
                     <Users className="h-4 w-4 mr-2" />
@@ -150,9 +166,9 @@ const Index = () => {
                   <Button
                     className="w-full bg-dark-layer-2 group-hover:bg-primary/90 transition-colors"
                     onClick={() => handleJoinContest(contest)}
-                    // disabled={!isActive}
+                    disabled={isButtonDisabled}
                   >
-                    {isActive ? "Join Contest" : "Not Started"}
+                    {buttonLabel}
                   </Button>
                 </CardFooter>
               </Card>
@@ -161,6 +177,7 @@ const Index = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

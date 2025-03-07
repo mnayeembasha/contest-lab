@@ -7,6 +7,7 @@ import { BACKEND_URL } from "@/config";
 import axios from "axios";
 import Workspace from "@/components/Workspace/Workspace";
 import { ProblemType } from "@/utils/types/problem";
+import Layout from "../layout";
 
 const ProblemPage = () =>{
   const [problem, setProblem] = useState<ProblemType | undefined>();
@@ -42,7 +43,9 @@ const ProblemPage = () =>{
     return <DotSpinner/>;
   }
 
-	return <Workspace problem={problem as ProblemType}/>
+	return <Layout>
+    <Workspace problem={problem as ProblemType}/>
+  </Layout>
 
 }
 

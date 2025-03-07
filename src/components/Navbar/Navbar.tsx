@@ -1,4 +1,4 @@
-type NavbarProps = { profile?: true };
+type NavbarProps = { profile?: true,backgroundColor?:string };
 import { useAuth } from "@/hooks/useAuth";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,16 +6,15 @@ import React from "react";
 import { Button } from "../ui/button";
 import { usePathname } from "next/navigation";
 
-const Navbar: React.FC<NavbarProps> = () => {
+const Navbar: React.FC<NavbarProps> = ({backgroundColor}) => {
   const { user } = useAuth();
-  console.log(user);
   const pathName = usePathname();
   return (
     //border-b border-gray-600
-    <div className="px-12 md:px-6 py-3">
+    <div className={`x-12 md:px-6 py-3 ${backgroundColor}`}>
       <div className="flex justify-between items-center">
-        <div className="text-2xl tracking-tight font-bold bg-gradient-to-b  from-amber-300 to-amber-600 text-transparent bg-clip-text">
-          <Link href={"/"}>Contest-Lab</Link>
+        <div className="text-2xl tracking-tighter font-bold bg-gradient-to-b  from-amber-300 to-amber-600 text-transparent bg-clip-text">
+          <Link href={"/"}>Algo Hustle</Link>
         </div>
         <div>
           {user ? (
@@ -35,9 +34,10 @@ const Navbar: React.FC<NavbarProps> = () => {
               />
             </Link>
           ) : (
-            <Link href={`/login?redirect=${pathName}`} className="">
+            <Link href={"/login"}>
+              {/* bg-gradient-to-b from-amber-300 to-amber-600 text-neutral-800 */}
               <Button
-                className="bg-gradient-to-b from-amber-300 to-amber-600 text-gray-700 text-md px-2 py-1 sm:px-4 rounded-md font-semibold
+                className="login-btn tracking-tight font-bold text-md px-2 sm:px-4 rounded-3xl
                 transition duration-300 ease-in-out"
                 onClick={()=>localStorage.setItem("redirectPath",pathName)}
               >

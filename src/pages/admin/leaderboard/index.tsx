@@ -41,8 +41,8 @@ export default function Leaderboard() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 flex justify-center">
-      <Card className="w-full max-w-3xl bg-neutral-950/20 bg-opacity-20 backdrop-filter backdrop-blur-8xl border border-white/10 shadow-lg text-white transition duration-300 rounded-lg">
+    <div className="container mx-auto py-8 px-4 flex justify-center ">
+      <Card className="w-full max-w-3xl bg-neutral-950/20 bg-opacity-20 bg-dark-layer-2 backdrop-filter backdrop-blur-8xl border border-white/10 shadow-lg text-white transition duration-300 rounded-lg">
         <CardHeader className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-t-lg flex items-center py-4">
           <div className="flex items-center gap-x-2 py-2"><Trophy className="h-6 w-6 mr-2" />
           <CardTitle className="text-2xl font-bold">Leaderboard</CardTitle></div>
