@@ -167,9 +167,13 @@ const ContestPage = () => {
         return acc;
       }, {} as Record<string, Record<string, string>>),
     };
-
+    const authToken =localStorage.getItem('token');
     try {
-      await axios.post(`${BACKEND_URL}/api/contest/submit`, submission, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/api/contest/submit`, submission, {
+        headers: {
+          Authorization: `Bearer ${authToken}`, // Replace authToken with your actual token variable
+        },
+      });
       customizedToast({ type: "success", position: "top-center", message: "Contest submitted successfully!" });
       setShowConfetti(true);
       setTimeout(() => {

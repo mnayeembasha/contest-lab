@@ -1,6 +1,6 @@
 // Playground.tsx
 import { ProblemType } from "@/utils/types/problem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineFullscreen, AiOutlineFullscreenExit } from "react-icons/ai";
 import Split from "react-split";
 import {
@@ -56,6 +56,7 @@ const Playground: React.FC<PlaygroundProps> = ({
   const [activeTestCaseId,setActiveTestCaseId] = useState<number>(0);
   const [loading,setLoading] = useState<boolean>(false);
   const [status,setStatus] = useState<(SuccessStatus&FailureStatus)|null>(null);
+  const [token,setToken] = useState<string>("");
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -65,10 +66,26 @@ const Playground: React.FC<PlaygroundProps> = ({
     }
     setIsFullScreen(!isFullScreen);
   };
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken); // Set it in state if needed
+    }
+  }, []);
 
   const handleRun = async () => {
     console.log("Selected Language:", selectedLanguage);
     console.log("User Code:", code);
+
+    // const authToken = localStorage.getItem("token");
+    console.log("Retrieved Token from localStorage:", token);
+
+    if (!token) {
+      console.error("⚠️ No token found in localStorage!");
+      customizedToast({ type: "error", message: "Authentication token missing!" });
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await axios.post(
@@ -79,10 +96,13 @@ const Playground: React.FC<PlaygroundProps> = ({
           slug: problem.slug,
         },
         {
-          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      console.log(res.data);
+
+      console.log("Backend Response:", res.data);
       setStatus(res.data);
       customizedToast({ type: "success", message: res.data?.message });
 
@@ -97,14 +117,16 @@ const Playground: React.FC<PlaygroundProps> = ({
           ),
         });
       }
-    } catch (error: unknown) {
+    } catch (error) {
       if (axios.isAxiosError(error)) {
+        console.error("Axios Error:", error.response?.data);
         customizedToast({
           type: "error",
           position: "top-center",
           message: error.response?.data?.message || "An unexpected error occurred",
         });
       } else {
+        console.error("Unexpected Error:", error);
         customizedToast({
           type: "error",
           position: "top-center",
@@ -115,6 +137,7 @@ const Playground: React.FC<PlaygroundProps> = ({
       setLoading(false);
     }
   };
+
 
   const getStatusClass = () => {
     if (status?.message) return "text-[#27AE60] bg-dark-layer-2";

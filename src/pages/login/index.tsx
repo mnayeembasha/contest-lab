@@ -56,33 +56,27 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
-    console.log("Submitting:", data);
-
     try {
-      const response = await axios.post(`${BACKEND_URL}/teckzite/login`, data, { withCredentials: true });
+      const response = await axios.post(`${BACKEND_URL}/teckzite/login`, data);
+      const { message, token, teckziteId } = response.data;
 
-      console.log(response.data.message);
+      localStorage.setItem("token", token);
+      setUser({ teckziteId });
+
       customizedToast({
         type: "success",
         position: "top-center",
-        message: response.data.message,
+        message,
       });
 
-      setUser({
-        teckziteId:response.data.teckziteId
-      })
-
-      // Ensure we get the redirect path before navigating
       const redirectPath = localStorage.getItem("redirectPath") || "/";
-      // localStorage.removeItem("redirectPath"); // Optional: Remove after using it
       router.push(redirectPath);
-
     } catch (error) {
       if (axios.isAxiosError(error)) {
         customizedToast({
           type: "error",
           position: "top-center",
-          message: error.response?.data?.message || "Error submitting contest",
+          message: error.response?.data?.message || "Some error occoured",
         });
       } else {
         console.error("Unexpected error:", error);
@@ -96,7 +90,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
 
   if (loading) {
     return <DotSpinnerLoader />;

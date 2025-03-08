@@ -27,7 +27,7 @@ export default function Home() {
 
         </div> */}
         <TailSpin/>
-        <p className="mt-4 text-lg">Welcome to Algo Hustle...</p>
+        <p className="mt-4 text-lg">Loading...</p>
       </div>
     );
   }

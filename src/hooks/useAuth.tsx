@@ -147,20 +147,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/teckzite/signOut`, {}, { withCredentials: true });
+      const authToken = localStorage.getItem("authToken"); // Retrieve token from storage
+
+      const response = await axios.post(
+        `${BACKEND_URL}/teckzite/signOut`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
 
       if (response.data) {
         customizedToast({ type: "success", message: "Logged out Successfully" });
         setUser(null);
         localStorage.removeItem("user");
+        localStorage.removeItem("authToken"); // Remove token after logout
         setTimeout(() => {
-          window.location.replace("/"); // Use replace to prevent back navigation
+          window.location.replace("/");
         }, 500);
       } else {
         customizedToast({ type: "error", message: "Logout failed" });
-        // setTimeout(() => {
-        //   window.location.replace("/");
-        // }, 3000);
       }
     } catch (error: unknown) {
       console.log(error);
@@ -170,7 +178,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       customizedToast({
         type: "error",
-        message: `Logout failed - ${errorMessage || "An unexpected error occurred"}`
+        message: `Logout failed - ${errorMessage || "An unexpected error occurred"}`,
       });
     }
   };
@@ -178,15 +186,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/teckzite/me`, { withCredentials: true });
+      const authToken = localStorage.getItem("authToken");
+
+      const response = await axios.get(`${BACKEND_URL}/teckzite/me`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
       if (response.data) {
         const userDetails: User = {
           teckziteId: response.data.user.teckziteId,
-          // username: response.data.user.username,
-          // profilePic: response.data.user.profilePic,
-          // email: response.data.user.email,
-          // role: response.data.user.role
         };
         setUser(userDetails);
         localStorage.setItem("user", JSON.stringify(userDetails));
