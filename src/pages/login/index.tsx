@@ -27,7 +27,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { user,setUser } = useAuth();
+  const { user,setUser,setAuthToken } = useAuth();
 
 
   useEffect(() => {
@@ -61,6 +61,7 @@ export default function LoginPage() {
       const { message, token, teckziteId } = response.data;
 
       localStorage.setItem("token", token);
+      setAuthToken(token);
       setUser({ teckziteId });
 
       customizedToast({

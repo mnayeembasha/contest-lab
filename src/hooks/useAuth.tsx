@@ -1,109 +1,3 @@
-// 'use client';
-// import React, { createContext,useContext,useState,useEffect } from "react";
-// import axios from "axios";
-// import { customizedToast } from "@/utils/Toast/Toast";
-// import { BACKEND_URL } from "@/config";
-
-
-// type User = {
-//   id: string;
-//   name: string;
-//   avatarUrl: string;
-//   email?:string;
-// };
-
-// type AuthContextType = {
-//   user: User | null;
-//   setUser: (user: User | null) => void;
-//   logout: () => void;
-//   fetchUser: () => void;
-//   loading:boolean;
-//   setLoading: (loading:boolean) => void;
-// };
-
-// const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-
-// export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-
-//   useEffect(()=>{
-//     localStorage.removeItem("user");
-//     fetchUser();
-//   },[])
-
-
-//   const [user, setUser] = useState<User | null>(()=>{
-//     if(typeof window !== undefined){
-//       return null;
-//     }
-//     const storedUser = localStorage.getItem("user");
-//     return storedUser ? JSON.parse(storedUser) : null;
-//   });
-//   const [loading,setLoading] = useState<boolean>(false);
-
-//   const logout = async () => {
-//     try {
-//       const response = await axios.post(`${BACKEND_URL}/auth/signout`, {}, { withCredentials: true });
-
-//       if (response.data) {
-//         customizedToast({type:"success",message:`Logged out Successfully`})
-//         setUser(null);
-//         localStorage.removeItem("user");
-//         setTimeout(() => {
-//           window.location.replace("/"); // Use replace to prevent back navigation
-//         }, 500);
-
-//       } else {
-//         customizedToast({type:"error",message:`Logout failed`})
-//         setTimeout(() => {
-//           window.location.replace("/"); // Use replace to prevent back navigation
-//         }, 3000);
-//       }
-//     } catch (error:unknown) {
-//       console.log(error);
-//       let errorMessage = "";
-//       if (axios.isAxiosError(error)) {
-//         errorMessage = error.response?.data?.message || "";
-//       }
-//       customizedToast({type:"error",message:`Logout failed - ${errorMessage || "An unexpected error occurred"}`})
-//     }
-//   };
-
-//   const fetchUser = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(`${BACKEND_URL}/auth/me`, { withCredentials: true });
-//       if (response.data) {
-//         const userDetails = {
-//           id:response.data.user.id,
-//           name:response.data.user.name,
-//           avatarUrl:response.data.user.avatarUrl
-//         }
-//         setUser(userDetails);
-//         localStorage.setItem("user", JSON.stringify(userDetails));
-//       }
-//     } catch (error) {
-//       console.log("Error fetching user:", error);
-//     }finally{
-//       setLoading(false);
-//     }
-//   };
-
-
-//   return (
-//     <AuthContext.Provider value={{ user, setUser, fetchUser, logout,loading,setLoading }}>
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   const context = useContext(AuthContext);
-//   if (!context) throw new Error("useAuth must be used within an AuthProvider");
-//   return context;
-// };
-
-
 'use client';
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
@@ -113,14 +7,13 @@ import { BACKEND_URL } from "@/config";
 type User = {
   teckziteId: string;
   name?: string;
-  // profilePic?: string;
-  // email?: string;
-  // role: string;
 };
 
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
+  authToken: string | null;
+  setAuthToken: (token: string | null) => void;
   logout: () => void;
   fetchUser: () => void;
   loading: boolean;
@@ -130,24 +23,27 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  // Load authToken from localStorage when the component mounts
   useEffect(() => {
-    localStorage.removeItem("user");
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setAuthToken(storedToken);
+    }
     fetchUser();
   }, []);
 
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      const storedUser = localStorage.getItem("user");
-      return storedUser ? JSON.parse(storedUser) : null;
-    }
-    return null;
-  });
-
-  const [loading, setLoading] = useState<boolean>(false);
-
   const logout = async () => {
     try {
-      const authToken = localStorage.getItem("authToken"); // Retrieve token from storage
+      setLoading(true);
+
+      if (!authToken) {
+        customizedToast({ type: "error", message: "No authentication token found." });
+        return;
+      }
 
       const response = await axios.post(
         `${BACKEND_URL}/teckzite/signOut`,
@@ -162,31 +58,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (response.data) {
         customizedToast({ type: "success", message: "Logged out Successfully" });
         setUser(null);
+        setAuthToken(null);
         localStorage.removeItem("user");
-        localStorage.removeItem("authToken"); // Remove token after logout
+        localStorage.removeItem("token");
         setTimeout(() => {
           window.location.replace("/");
         }, 500);
       } else {
-        customizedToast({ type: "error", message: "Logout failed" });
+        throw new Error("Logout failed");
       }
-    } catch (error: unknown) {
-      console.log(error);
-      let errorMessage = "";
-      if (axios.isAxiosError(error)) {
-        errorMessage = error.response?.data?.message || "";
-      }
+    } catch (error) {
+      console.error("Logout Error:", error);
       customizedToast({
         type: "error",
-        message: `Logout failed - ${errorMessage || "An unexpected error occurred"}`,
+        message: `Logout failed - ${
+          axios.isAxiosError(error) ? error.response?.data?.message || "An unexpected error occurred" : "An unexpected error occurred"
+        }`,
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchUser = async () => {
     try {
       setLoading(true);
-      const authToken = localStorage.getItem("authToken");
+
+      if (!authToken) {
+        setUser(null);
+        return;
+      }
 
       const response = await axios.get(`${BACKEND_URL}/teckzite/me`, {
         headers: {
@@ -194,22 +95,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         },
       });
 
-      if (response.data) {
+      if (response.data?.user) {
         const userDetails: User = {
           teckziteId: response.data.user.teckziteId,
+          name: response.data.user.name,
         };
         setUser(userDetails);
         localStorage.setItem("user", JSON.stringify(userDetails));
       }
     } catch (error) {
-      console.log("Error fetching user:", error);
+      console.error("Error fetching user:", error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, fetchUser, logout, loading, setLoading }}>
+    <AuthContext.Provider value={{ user, setUser, authToken, setAuthToken, fetchUser, logout, loading, setLoading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -220,4 +123,3 @@ export const useAuth = () => {
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
-
