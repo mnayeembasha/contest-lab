@@ -126,7 +126,7 @@ const ContestPage = () => {
    useEffect(() => {
     if (!user || !contestId || !contest?.startTime) return;
 
-    const storageKey = `contestStartTime_${contestId}_${user.id}`;
+    const storageKey = `contestStartTime_${contestId}_${user.teckziteId}`;
     const savedStartTime = localStorage.getItem(storageKey);
     const contestStartTimeMs = new Date(contest.startTime).getTime();
     const currentTime = Date.now();
@@ -159,7 +159,7 @@ const ContestPage = () => {
     setUserStartTime(timeTakenValue);
 
     const submission = {
-      userId: user.id,
+      userId: user.teckziteId,
       contestId,
       timeTaken: timeTakenValue,
       answers: Object.entries(userAnswers).reduce((acc, [slug, data]) => {

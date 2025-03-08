@@ -1,22 +1,24 @@
-'use client'
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { formatInTimeZone } from "date-fns-tz";
-import { useCallback, useEffect, useState } from "react";
-import { Contest } from "@/utils/types/contest";
 import { Clock, Users } from "lucide-react";
-import { mockContest } from "@/utils/data/contest";
-import { useRouter } from "next/router";
-import { customizedToast } from "@/utils/Toast/Toast";
-import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar/Navbar";
-// import Layout from "../layout";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { customizedToast } from "@/utils/Toast/Toast";
+import { mockContest } from "@/utils/data/contest";
+import { Contest } from "@/utils/types/contest";
 
 const mockContests: Contest[] = [mockContest];
 
 const Countdown = ({ startTime }: { startTime: Date }) => {
   const calculateTimeLeft = useCallback(() => {
+    if (typeof window === "undefined") return null; // Prevent SSR hydration issues
+
     const now = new Date();
     const difference = startTime.getTime() - now.getTime();
 
@@ -27,17 +29,19 @@ const Countdown = ({ startTime }: { startTime: Date }) => {
       minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
       seconds: Math.floor((difference % (1000 * 60)) / 1000),
     };
-
   }, [startTime]);
 
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
   useEffect(() => {
+    if (!timeLeft) return;
+
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
     }, 1000);
+
     return () => clearInterval(timer);
-  }, [calculateTimeLeft]);
+  }, [calculateTimeLeft, timeLeft]);
 
   if (!timeLeft) return <span className="text-green-400">Contest is Live!</span>;
 
@@ -48,13 +52,23 @@ const Countdown = ({ startTime }: { startTime: Date }) => {
   );
 };
 
-const Index = () => {
-  const router = useRouter();
-  const [contests, setContests] = useState<Contest[]>([]);
-  const { user } = useAuth();
-  const pathName = usePathname();
+const ContestsPage = () => {
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+
+  const router = useRouter();
+  const { user } = useAuth();
+  const pathName = usePathname();
+  const [contests, setContests] = useState<Contest[]>([]);
+
+  useEffect(() => {
+    // Ensure authentication logic only runs on the client
+    if (typeof window === "undefined") return;
+
     if (!user) {
       localStorage.setItem("redirectPath", pathName);
       router.push("/login?redirectPath=/contests");
@@ -93,16 +107,15 @@ const Index = () => {
     router.push(`/contests/${contest.contestId}`);
   };
 
-  return (
+  if (!isClient) return null; 
 
-     <div className="min-h-screen w-full  bg-dark-layer-2  animate-fade-in text-white bg-gradient-to-br from-[#1a001f] via-[#2b001d] to-[#3a0024]">
-      <Navbar/>
+  return (
+    <div className="min-h-screen w-full bg-dark-layer-2 text-white bg-gradient-to-br from-[#1a001f] via-[#2b001d] to-[#3a0024]">
+      <Navbar />
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tighter mb-4">Coding Contests</h1>
-          <p className="text-muted-foreground text-lg">
-            Participate in coding contests and improve your skills
-          </p>
+          <p className="text-muted-foreground text-lg">Participate in coding contests and improve your skills</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,15 +144,10 @@ const Index = () => {
             }
 
             return (
-              <Card
-                key={contest.contestId}
-                className="bg-dark-layer-1 hover:shadow-lg backdrop-blur-2xl transition-shadow duration-300 group"
-              >
+              <Card key={contest.contestId} className="bg-dark-layer-1 hover:shadow-lg backdrop-blur-2xl transition-shadow duration-300 group">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
-                    <span className="text-white text-2xl font-bold tracking-tight">
-                      {contest.contestName}
-                    </span>
+                    <span className="text-white text-2xl font-bold tracking-tight">{contest.contestName}</span>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}`}>
                       {statusText}
                     </span>
@@ -152,8 +160,7 @@ const Index = () => {
                       <span className="text-gray-500">Contest Ended</span>
                     ) : (
                       <span>
-                        <Countdown startTime={startTime} />
-                        {"  (" + formatInTimeZone(startTime, "Asia/Kolkata", "MMM d, h:mm a") + ")"}
+                        <Countdown startTime={startTime} /> {" (" + formatInTimeZone(startTime, "Asia/Kolkata", "MMM d, h:mm a") + ")"}
                       </span>
                     )}
                   </div>
@@ -163,11 +170,7 @@ const Index = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    className="w-full bg-dark-layer-2 group-hover:bg-primary/90 transition-colors"
-                    onClick={() => handleJoinContest(contest)}
-                    disabled={isButtonDisabled}
-                  >
+                  <Button className="w-full bg-dark-layer-2 group-hover:bg-primary/90 transition-colors" onClick={() => handleJoinContest(contest)} disabled={isButtonDisabled}>
                     {buttonLabel}
                   </Button>
                 </CardFooter>
@@ -177,8 +180,7 @@ const Index = () => {
         </div>
       </div>
     </div>
-
   );
 };
 
-export default Index;
+export default ContestsPage;

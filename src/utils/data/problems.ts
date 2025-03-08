@@ -1,49 +1,23 @@
 // def two_sum(nums, target):
-//     num_map = {}  # Dictionary to store numbers and their indices
+//     num_map = {}  # Dictionary to store number and its index
 //     for i, num in enumerate(nums):
 //         complement = target - num
 //         if complement in num_map:
-//             return [num_map[complement], i]  # Return indices of the two numbers
-//         num_map[num] = i  # Store the index of the current number
+//             return [num_map[complement], i]  # Return indices if complement exists
+//         num_map[num] = i  # Store index of the current number
 //     return []  # Return empty list if no solution found
 
-// if __name__ == "__main__":
-//     import sys
-//     input_data = sys.stdin.read().strip().split("\n")  # Read input from stdin
-//     for line in input_data:
-//         nums_str, target_str = line.split(";")  # Expecting input format: "2,7,11,15;9"
-//         nums = list(map(int, nums_str.split(",")))
-//         target = int(target_str)
-//         print(two_sum(nums, target))  # Output result for each test case
 
-// def is_valid(s):
-//     stack = []
-//     mapping = {")": "(", "}": "{", "]": "["}
-//     for char in s:
-//         if char in mapping:
-//             top_element = stack.pop() if stack else '#'
-//             if mapping[char] != top_element:
-//                 return False
-//         else:
-//             stack.append(char)
-//     return not stack
+// def max_subarray(nums):
+//     if not nums:
+//         raise ValueError("The input array is empty")
 
-  // if __name__ == "__main__":
-  //     import sys
-  //     for line in sys.stdin:
-  //         line = line.strip().strip("'\"")  # Remove surrounding quotes
-  //         print(str(is_valid(line)).lower())  # Print result in lowercase
+//     current_sum = max_sum = nums[0]
+//     for num in nums[1:]:
+//         current_sum = max(num, current_sum + num)
+//         max_sum = max(max_sum, current_sum)
+//     return max_sum
 
-
-  // def max_subarray(nums):
-  // if not nums:
-  //     raise ValueError("The input array is empty")
-
-  // current_sum = max_sum = nums[0]
-  // for num in nums[1:]:
-  //     current_sum = max(num, current_sum + num)
-  //     max_sum = max(max_sum, current_sum)
-  // return max_sum
 
 // from collections import deque
 
@@ -70,7 +44,6 @@
 //         result.append(current_level)
 
 //     return result
-
 
 
 

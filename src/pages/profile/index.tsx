@@ -45,7 +45,7 @@ export default function Profile() {
     <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
       <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white bg-white">
         <Image
-          src={user?.avatarUrl || "https://cdn-icons-png.flaticon.com/512/16802/16802273.png"}
+          src={"https://cdn-icons-png.flaticon.com/512/16802/16802273.png"}
           alt="Profile picture"
           width={128}
           height={128}
@@ -56,9 +56,9 @@ export default function Profile() {
 
     {/* Profile Info */}
     <div className="text-center space-y-4">
-      <h1 className="text-4xl font-medium text-gray-200 capitalize">{getUsernameCapitalized(user?.name)}</h1>
-      <h3 className="text-2xl font-medium text-gray-300 ">UserId : {user?.id} </h3>
-      <h4 className="text-xl font-medium text-gray-400 ">{user?.email}</h4>
+      <h1 className="text-4xl font-medium text-gray-200 capitalize">{getUsernameCapitalized(user?.teckziteId)}</h1>
+      {/* <h3 className="text-2xl font-medium text-gray-300 ">UserId : {user?.id} </h3>
+      <h4 className="text-xl font-medium text-gray-400 ">{user?.email}</h4> */}
 
       <button
         onClick={logout}

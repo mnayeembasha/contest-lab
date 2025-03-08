@@ -24,7 +24,6 @@ const Navbar: React.FC<NavbarProps> = ({backgroundColor}) => {
             >
               <Image
                 src={
-                  user?.avatarUrl ||
                   "https://cdn-icons-png.flaticon.com/512/16802/16802273.png"
                 }
                 alt="Profile picture"
