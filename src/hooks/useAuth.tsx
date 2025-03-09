@@ -84,28 +84,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
 
-      if (!authToken) {
-        setUser(null);
-        return;
-      }
+      // if (!authToken) {
+      //   setUser(null);
+      //   return;
+      // }
 
-      const response = await axios.get(`${BACKEND_URL}/teckzite/me`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
+      if(authToken){
+        const response = await axios.get(`${BACKEND_URL}/teckzite/me`,{
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          }
+        });
 
-      if (response.data?.user) {
-        const userDetails: User = {
-          teckziteId: response.data.user.teckziteId,
-          name: response.data.user.name,
-        };
-        setUser(userDetails);
-        localStorage.setItem("user", JSON.stringify(userDetails));
+        if (response.data?.teckziteId) {
+          const userDetails: User = {
+            teckziteId: response.data.teckziteId,
+            // name: response.data.user.name,
+          };
+          setUser(userDetails);
+          localStorage.setItem("user", JSON.stringify(userDetails));
+        }
       }
     } catch (error) {
       console.error("Error fetching user:", error);
-      setUser(null);
+      // setUser(null);
     } finally {
       setLoading(false);
     }

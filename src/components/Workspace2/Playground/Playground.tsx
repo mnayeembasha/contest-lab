@@ -1,6 +1,6 @@
 // Playground.tsx
 import { ProblemType } from "@/utils/types/problem";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AiOutlineFullscreen, AiOutlineFullscreenExit } from "react-icons/ai";
 import Split from "react-split";
 import {
@@ -57,6 +57,7 @@ const Playground: React.FC<PlaygroundProps> = ({
   const [loading,setLoading] = useState<boolean>(false);
   const [status,setStatus] = useState<(SuccessStatus&FailureStatus)|null>(null);
   const [token,setToken] = useState<string>("");
+  const remainingAttempts = useRef<number>(8);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -104,6 +105,7 @@ const Playground: React.FC<PlaygroundProps> = ({
 
       console.log("Backend Response:", res.data);
       setStatus(res.data);
+      remainingAttempts.current = res.data.remainingAttempts;
       customizedToast({ type: "success", message: res.data?.message });
 
       if (res.data?.error) {
@@ -163,6 +165,10 @@ const Playground: React.FC<PlaygroundProps> = ({
           </SelectContent>
         </Select>
         <div className="flex">
+        <p className="flex items-center">
+  Remaining Attempts :{"  "}
+  <span className="pl-2 text-2xl font-bold">{remainingAttempts.current}</span>
+</p>
           <EditorFooter handleRun={handleRun} handleSubmit={() => {}} loading={loading}/>
         <button
           onClick={handleFullScreen}

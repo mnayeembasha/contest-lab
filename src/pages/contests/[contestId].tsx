@@ -242,7 +242,9 @@ const ContestPage = () => {
   };
 
 
-
+  if(timeLeft === "00:00:00"){
+    return <div className="bg-dark-layer-2 h-screen flex items-center justify-center text-5xl font-bold tracking-tighter">This Contest has ended</div>;
+  }
 
 
   return (
