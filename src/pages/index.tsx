@@ -92,7 +92,7 @@ export default function Home() {
                 Get Started
               </MotionButton>
             </Link>
-            <Link href="/problems">
+            {/* <Link href="/problems">
               <MotionButton
                 className="px-6 py-6 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-3xl transition-all duration-300"
                 whileHover={{ scale: 1.08 }}
@@ -100,7 +100,7 @@ export default function Home() {
               >
                 Practice Problems
               </MotionButton>
-            </Link>
+            </Link> */}
           </motion.div>
         </motion.div>
       </div>
