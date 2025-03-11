@@ -107,6 +107,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (typeof window !== 'undefined') {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        // localStorage.clear();
       }
     } catch (error) {
       console.error("Logout error:", error);

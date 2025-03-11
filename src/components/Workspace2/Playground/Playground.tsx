@@ -195,17 +195,29 @@ const Playground: React.FC<PlaygroundProps> = ({
             extensions={[javascript()]}
           /> */}
           <Editor
-        height="100%"
-        language={selectedLanguage}
-        theme="vs-dark"
-        value={code}
-        onChange={(value) => onCodeChange(value || "")}
-        options={{
-          minimap: { enabled: false },
-          fontSize: 14,
-          scrollBeyondLastLine: false,
-        }}
-      />
+  height="100%"
+  language={selectedLanguage}
+  theme="vs-dark"
+  value={code}
+  onChange={(value) => onCodeChange(value || "")}
+  options={{
+    minimap: { enabled: false },
+    fontSize: 14,
+    scrollBeyondLastLine: false,
+    contextmenu: false, // Disable right-click context menu
+  }}
+  onMount={(editor) => {
+    editor.onKeyDown((e) => {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 88) // C, V, X
+      ) {
+        e.preventDefault();
+      }
+    });
+  }}
+/>
+
         </div>
 
         <div className="w-full px-5 overflow-auto">
@@ -271,3 +283,5 @@ const Playground: React.FC<PlaygroundProps> = ({
 };
 
 export default Playground;
+
+
