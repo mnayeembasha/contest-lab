@@ -13,11 +13,11 @@ type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   authToken: string | null;
-  setAuthToken: (token: string | null) => void;
-  logout: () => void;
-  fetchUser: () => void;
+  setAuthToken: (token: string |null) => void;
+  logout: () => Promise<void>;
+  fetchUser: () => Promise<void>;
   loading: boolean;
-  setLoading: (loading: boolean) => void;
+  setLoading:(loading:boolean)=>void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,96 +25,102 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  // Load authToken from localStorage when the component mounts
+  // Initialize from localStorage
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setAuthToken(storedToken);
-    }
-    fetchUser();
+    const initializeAuth = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem("token") : null;
+      const storedUser = typeof window !== 'undefined' ? localStorage.getItem("user") : null;
+
+      if (token) setAuthToken(token);
+      if (storedUser) setUser(JSON.parse(storedUser));
+
+      try {
+        if (token) await fetchUser();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
+
+  // Persist authToken changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (authToken) {
+      localStorage.setItem("token", authToken);
+    } else {
+      localStorage.removeItem("token");
+    }
+  }, [authToken]);
+
+  // Persist user changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    } else {
+      localStorage.removeItem("user");
+    }
+  }, [user]);
+
+  const fetchUser = async () => {
+    try {
+      setLoading(true);
+      if (!authToken) return;
+
+      const response = await axios.get(`${BACKEND_URL}/teckzite/me`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      if (response.data?.teckziteId) {
+        const userData = {
+          teckziteId: response.data.teckziteId,
+          name: response.data.name || ''
+        };
+        setUser(userData);
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const logout = async () => {
     try {
       setLoading(true);
-
-      if (!authToken) {
-        customizedToast({ type: "error", message: "No authentication token found." });
-        return;
+      if (authToken) {
+        await axios.post(`${BACKEND_URL}/teckzite/signOut`, {}, {
+          headers: { Authorization: `Bearer ${authToken}` }
+        });
       }
 
-      const response = await axios.post(
-        `${BACKEND_URL}/teckzite/signOut`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
-      );
+      setUser(null);
+      setAuthToken(null);
 
-      if (response.data) {
-        customizedToast({ type: "success", message: "Logged out Successfully" });
-        setUser(null);
-        setAuthToken(null);
-        localStorage.removeItem("user");
+      if (typeof window !== 'undefined') {
         localStorage.removeItem("token");
-        setTimeout(() => {
-          window.location.replace("/");
-        }, 500);
-      } else {
-        throw new Error("Logout failed");
+        localStorage.removeItem("user");
       }
     } catch (error) {
-      console.error("Logout Error:", error);
+      console.error("Logout error:", error);
       customizedToast({
         type: "error",
-        message: `Logout failed - ${
-          axios.isAxiosError(error) ? error.response?.data?.message || "An unexpected error occurred" : "An unexpected error occurred"
-        }`,
+        message: "Logout failed. Please try again."
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUser = async () => {
-    try {
-      setLoading(true);
-
-      // if (!authToken) {
-      //   setUser(null);
-      //   return;
-      // }
-
-      if(authToken){
-        const response = await axios.get(`${BACKEND_URL}/teckzite/me`,{
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          }
-        });
-
-        if (response.data?.teckziteId) {
-          const userDetails: User = {
-            teckziteId: response.data.teckziteId,
-            // name: response.data.user.name,
-          };
-          setUser(userDetails);
-          localStorage.setItem("user", JSON.stringify(userDetails));
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      // setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, setUser, authToken, setAuthToken, fetchUser, logout, loading, setLoading }}>
+    <AuthContext.Provider value={{ user, setUser,authToken, setAuthToken,logout, fetchUser, loading,setLoading }}>
       {children}
     </AuthContext.Provider>
   );

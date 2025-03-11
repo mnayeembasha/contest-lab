@@ -4,7 +4,7 @@ import { problems } from "./problems";
 export const mockContest: Contest = {
     contestId: "679e11660e4c800460d1351a",
     contestName: "Algo Hustle",
-    startTime: "2025-03-10T02:40:00Z",
+    startTime: "2025-03-11T02:40:00Z",
     duration: "20h",
     isActive:true,
     problems:problems

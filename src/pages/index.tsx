@@ -7,11 +7,16 @@ import { Button } from "@/components/ui/button";
 import TailSpin from "@/components/Loader/TailSpin";
 import { motion } from "framer-motion";
 import useHasMounted from "@/hooks/useHasMounted";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/router";
+
 const MotionButton = motion(Button);
 
 export default function Home() {
   const hasMounted = useHasMounted();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     const img = new Image();
@@ -19,14 +24,17 @@ export default function Home() {
     img.onload = () => setImageLoaded(true);
   }, []);
 
-  if (!hasMounted || !imageLoaded) {
+  useEffect(() => {
+    if (!authLoading && !user) {
+      localStorage.setItem("redirectPath", "/contests");
+      router.push("/login");
+    }
+  }, [authLoading, user, router]);
+
+  if (!hasMounted || !imageLoaded || authLoading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white">
-        {/* <div className="text-center">
-          <div className="flex flex-col w-16 h-16 border-4 border-gray-300 border-t-transparent rounded-full animate-spin mx-auto"></div>
-
-        </div> */}
-        <TailSpin/>
+        <TailSpin />
         <p className="mt-4 text-lg">Loading...</p>
       </div>
     );
@@ -92,15 +100,6 @@ export default function Home() {
                 Get Started
               </MotionButton>
             </Link>
-            {/* <Link href="/problems">
-              <MotionButton
-                className="px-6 py-6 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-3xl transition-all duration-300"
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Practice Problems
-              </MotionButton>
-            </Link> */}
           </motion.div>
         </motion.div>
       </div>

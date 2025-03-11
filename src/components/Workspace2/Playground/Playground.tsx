@@ -2,6 +2,10 @@
 import { ProblemType } from "@/utils/types/problem";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineFullscreen, AiOutlineFullscreenExit } from "react-icons/ai";
+// import CodeMirror from "@uiw/react-codemirror";
+// import { vscodeDark } from "@uiw/codemirror-theme-vscode";
+// import { javascript } from "@codemirror/lang-javascript";
+import Editor from "@monaco-editor/react";
 import Split from "react-split";
 import {
   Select,
@@ -9,9 +13,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import CodeMirror from "@uiw/react-codemirror";
-import { vscodeDark } from "@uiw/codemirror-theme-vscode";
-import { javascript } from "@codemirror/lang-javascript";
+
 import EditorFooter from "./EditorFooter";
 import axios from "axios";
 import { BACKEND_URL } from "@/config";
@@ -186,12 +188,24 @@ const Playground: React.FC<PlaygroundProps> = ({
         minSize={60}
       >
         <div className="h-[calc(100vh-94px)] w-full overflow-auto p-4">
-          <CodeMirror
+          {/* <CodeMirror
             value={code}
             theme={vscodeDark}
             onChange={onCodeChange}
             extensions={[javascript()]}
-          />
+          /> */}
+          <Editor
+        height="100%"
+        language={selectedLanguage}
+        theme="vs-dark"
+        value={code}
+        onChange={(value) => onCodeChange(value || "")}
+        options={{
+          minimap: { enabled: false },
+          fontSize: 14,
+          scrollBeyondLastLine: false,
+        }}
+      />
         </div>
 
         <div className="w-full px-5 overflow-auto">

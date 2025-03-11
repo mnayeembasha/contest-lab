@@ -3,7 +3,7 @@ import {Bounce, toast, ToastTransition} from "react-toastify"
 
 interface ToastProps{
   message:string | ReactNode;
-  type:"success"|"error";
+  type:"success"|"error"|"warn";
   position?:"top-center"|"bottom-center"|"top-right"|undefined;
   hideProgressBar?:boolean;
   closeOnClick?: boolean;
@@ -19,7 +19,7 @@ interface ToastProps{
 export function customizedToast (props:ToastProps) {
     if(props.type==="success"){
       return toast.success(props.message, {
-        position: props.position || "top-center",
+        position: "top-center",
         autoClose:props.autoClose||3000,
         hideProgressBar: props.hideProgressBar || false,
         closeOnClick: props.closeOnClick || false,
@@ -31,7 +31,19 @@ export function customizedToast (props:ToastProps) {
       });
     }else if (props.type==="error"){
       return toast.error(props.message, {
-        position: props.position||"top-right",
+        position: "top-center",
+        autoClose:props.autoClose||3000,
+        hideProgressBar: props.hideProgressBar || false,
+        closeOnClick: props.closeOnClick || false,
+        pauseOnHover: props.pauseOnHover || true,
+        draggable: props.draggable || true,
+        progress: props.progress || undefined,
+        transition: props.transition||Bounce,
+        theme:props.theme ||"dark"
+      });
+    }else if (props.type==="warn"){
+      return toast.warn(props.message, {
+        position: "top-center",
         autoClose:props.autoClose||3000,
         hideProgressBar: props.hideProgressBar || false,
         closeOnClick: props.closeOnClick || false,
@@ -43,4 +55,3 @@ export function customizedToast (props:ToastProps) {
       });
     }
 }
-
