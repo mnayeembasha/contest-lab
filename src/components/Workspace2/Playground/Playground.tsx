@@ -13,19 +13,19 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-interface RunResult {
-  input: string;
-  output: string;
-  expected: string;
-  success: boolean;
-}
+// interface RunResult {
+//   input: string;
+//   output: string;
+//   expected: string;
+//   success: boolean;
+// }
 
-interface RunResponse {
-  message?: string;
-  error?: string;
-  results: RunResult[];
-  remainingAttempts: number;
-}
+// interface RunResponse {
+//   message?: string;
+//   error?: string;
+//   results: RunResult[];
+//   remainingAttempts: number;
+// }
 
 import EditorFooter from "./EditorFooter";
 import axios from "axios";
@@ -73,7 +73,7 @@ const Playground: React.FC<PlaygroundProps> = ({
   const [loading,setLoading] = useState<boolean>(false);
   const [status,setStatus] = useState<(SuccessStatus&FailureStatus)|null>(null);
   const [token,setToken] = useState<string>("");
-  const remainingAttempts = useRef<number>(8);
+  const remainingAttempts = useRef<number>(25);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -157,11 +157,11 @@ const Playground: React.FC<PlaygroundProps> = ({
   };
 
 
-  const getStatusClass = () => {
-    if (status?.message) return "text-[#27AE60] bg-dark-layer-2";
-    if (status?.error) return "text-[#C0392B] bg-dark-layer-2";
-    return "bg-dark-fill-3 text-white";
-  };
+  // const getStatusClass = () => {
+  //   if (status?.message) return "text-[#27AE60] bg-dark-layer-2";
+  //   if (status?.error) return "text-[#C0392B] bg-dark-layer-2";
+  //   return "bg-dark-fill-3 text-white";
+  // };
 
   return (
     <div className="flex flex-col h-full bg-dark-layer-1 relative overflow-x-hidden">
@@ -299,5 +299,4 @@ const Playground: React.FC<PlaygroundProps> = ({
 };
 
 export default Playground;
-
 
