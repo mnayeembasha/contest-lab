@@ -13,6 +13,19 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+interface RunResult {
+  input: string;
+  output: string;
+  expected: string;
+  success: boolean;
+}
+
+interface RunResponse {
+  message?: string;
+  error?: string;
+  results: RunResult[];
+  remainingAttempts: number;
+}
 
 import EditorFooter from "./EditorFooter";
 import axios from "axios";
@@ -34,6 +47,7 @@ interface Results{
   input:string;
   expected:string;
   output:string;
+success:boolean;
 }
 interface SuccessStatus{
   message:string,
@@ -232,48 +246,50 @@ const Playground: React.FC<PlaygroundProps> = ({
 
           <div className="flex flex-col w-full">
   <div className="flex mt-2 gap-2 w-full">
-    {problem.testCases &&
-      problem.testCases.map((testcase, index) => (
-        <div
-          key={testcase.id}
-          className=""
-          onClick={() => setActiveTestCaseId(index)}
-        >
-          <div
-            className={`${getStatusClass()} font-medium w-full text-center transition-all focus:outline-none rounded-md px-3 py-1 cursor-pointer
-              ${activeTestCaseId === index ? "bg-dark-layer-2" : "bg-neutral-800"}
-            `}
-          >
-            Case - {index + 1}
-          </div>
-        </div>
-      ))}
+  {problem.testCases && problem.testCases.map((testcase, index) => {
+  const result = status?.results?.[index];
+  const isSuccess = result?.success ?? false;
+  const isActive = activeTestCaseId === index;
+
+  return (
+    <div
+      key={testcase.id}
+      onClick={() => setActiveTestCaseId(index)}
+      className="flex flex-wrap items-center mt-2"
+    >
+      <div
+        className={`font-medium w-full text-center transition-all focus:outline-none rounded-md px-3 py-1 cursor-pointer
+          ${isActive ? 'bg-dark-layer-2' : ''}
+          ${result ? (isSuccess ? 'bg-green-600' : 'bg-red-600') : 'bg-neutral-800'}
+        `}
+      >
+        Case - {index + 1}
+      </div>
+    </div>
+  );
+})}
   </div>
 
-  <div className="font-semibold w-full mb-4">
-    <p className="text-sm font-medium mt-4 text-white">Input:</p>
-    <div className={` bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
-     text-white mt-2`}>
-      <pre>
-        {problem.testCases ? problem.testCases[activeTestCaseId].description : ""}
-      </pre>
-    </div>
-    <p className="text-sm font-medium mt-4 text-white">Expected Output:</p>
-    <div className={`${status?"text-[#27AE60]":"text-white"} bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
-      mt-2`}>
-      <pre>
-        {problem.testCases ? problem.testCases[activeTestCaseId].expected : ""}
-      </pre>
-    </div>
-   {status &&  <><p className="text-sm font-medium mt-4 text-white">Actual Output:</p>
-    <div className={`${getStatusClass()} w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent
-      mt-2 overflow-x-hidden`}>
-      <pre>
-        {status.testCase && status.testCase?.output}
-        {status.results && JSON.stringify(status.results[activeTestCaseId].output)}
-      </pre>
-    </div></> }
+  {problem.testCases && <div className="font-semibold w-full mb-4">
+  <p className="text-sm font-medium mt-4 text-white">Input:</p>
+  <div className="bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent text-white mt-2">
+    <pre>{ problem.testCases[activeTestCaseId].input}</pre>
   </div>
+
+  <p className="text-sm font-medium mt-4 text-white">Expected Output:</p>
+  <div className="bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent text-white mt-2">
+    <pre>{status?.results?.[activeTestCaseId]?.expected ?? problem.testCases[activeTestCaseId].expected}</pre>
+  </div>
+
+  {status && (
+    <>
+      <p className="text-sm font-medium mt-4 text-white">Actual Output:</p>
+      <div className={`${status.results[activeTestCaseId].success ? 'text-green-400' : 'text-red-400'} bg-dark-layer-2 w-full cursor-text rounded-lg border px-3 py-[10px] border-transparent mt-2`}>
+        <pre>{status.results[activeTestCaseId].output}</pre>
+      </div>
+    </>
+  )}
+</div>}
 </div>
 
         </div>

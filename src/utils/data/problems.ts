@@ -294,7 +294,10 @@ export const problems = [
       { "id": 1, "input": "\"a2[b]\"", "expected": "\"abb\"", "description": "s=\"a2[b]\"" },
       { "id": 2, "input": "\"x3[y]\"", "expected": "\"xyyy\"", "description": "s=\"x3[y]\"" },
       { "id": 3, "input": "\"3[a2[b]]\"", "expected": "\"abbabbabb\"", "description": "s=\"3[a2[b]]\"" },
-      { "id": 4, "input": "\"2[x2[y3[z]]]\"", "expected": "\"xyzzzxyzzzxyzzzxyzzz\"", "description": "s=\"2[x2[y3[z]]]\"" }
+      {  "id": 4,
+        "input": "\"4[a]3[b2[c]]\"\n",
+        "expected": "\"aaaabccbccbcc\"\n",
+         "description": "s=\"4[a]3[b2[c]]\"" }
     ],
     "hiddenTestCases": [
       { "input": "\"4[a]3[b2[c]]\"", "expected": "\"aaaabccbccbcc\"", "description": "Nested patterns with different counts." },
